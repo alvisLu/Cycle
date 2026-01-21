@@ -86,19 +86,18 @@ export function HistoryPage({
                       {" - "}
                       {cycle.endDate
                         ? format(new Date(cycle.endDate), "M月d日", {
-                            locale: zhTW,
-                          })
+                          locale: zhTW,
+                        })
                         : "進行中"}
                     </span>
                     <span className="text-muted-foreground text-sm">
                       {cycle.endDate
-                        ? `${
-                            Math.ceil(
-                              (new Date(cycle.endDate).getTime() -
-                                new Date(cycle.startDate).getTime()) /
-                                (1000 * 60 * 60 * 24)
-                            ) + 1
-                          } 天`
+                        ? `${Math.ceil(
+                          (new Date(cycle.endDate).getTime() -
+                            new Date(cycle.startDate).getTime()) /
+                          (1000 * 60 * 60 * 24)
+                        ) + 1
+                        } 天`
                         : ""}
                     </span>
                   </div>
@@ -134,26 +133,28 @@ export function HistoryPage({
               onSelectRange={setEditRange}
             />
           </div>
-          <DialogFooter className="flex-col gap-2 sm:flex-col">
-            <div className="flex gap-2 w-full">
+          <DialogFooter className="flex-col gap-2 sm:flex-col w-full">
+            <div className="w-full space-y-2">
+              <div className="flex gap-2 w-full">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowEditDialog(false)}
+                  className="flex-1"
+                >
+                  取消
+                </Button>
+                <Button onClick={onSaveEdit} className="flex-1">
+                  儲存
+                </Button>
+              </div>
               <Button
-                variant="outline"
-                onClick={() => setShowEditDialog(false)}
-                className="flex-1"
+                variant="destructive"
+                onClick={onDeleteCycle}
+                className="w-full"
               >
-                取消
-              </Button>
-              <Button onClick={onSaveEdit} className="flex-1">
-                儲存
+                刪除此紀錄
               </Button>
             </div>
-            <Button
-              variant="destructive"
-              onClick={onDeleteCycle}
-              className="w-full"
-            >
-              刪除此紀錄
-            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

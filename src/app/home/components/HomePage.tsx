@@ -59,10 +59,15 @@ export function HomePage({
   // 預估本次經期的連續日期（用於「經期開始」對話框中的日曆高亮）
   const predictedPeriodDays =
     status.averagePeriodLength && status.averagePeriodLength > 0
-      ? Array.from({ length: status.averagePeriodLength }, (_, i) =>
-        addDays(selectedDate, i)
+      ? Array.from(
+        { length: status.averagePeriodLength },
+        (_, i) => addDays(selectedDate, i)
       )
       : [];
+
+  // 目前這次經期開始日（用於「經期結束」對話框的 range 顯示）
+  const currentCycleStartDate =
+    status.currentCycle?.startDate ? parseISO(status.currentCycle.startDate) : null;
 
   return (
     <>
@@ -208,7 +213,16 @@ export function HomePage({
           <DialogHeader>
             <DialogTitle>經期結束日期</DialogTitle>
           </DialogHeader>
-          <Calendar selected={selectedDate} onSelect={setSelectedDate} />
+          <Calendar
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            mode="range"
+            selectedRange={
+              currentCycleStartDate
+                ? { from: currentCycleStartDate, to: selectedDate }
+                : { from: selectedDate, to: selectedDate }
+            }
+          />
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowEndDialog(false)}>
               取消
