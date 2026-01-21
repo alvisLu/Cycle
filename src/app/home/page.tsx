@@ -53,7 +53,6 @@ export default function HomeRoutePage() {
   };
 
   const cycles = parsePeriodCycles(events);
-  const hasOngoingPeriod = cycles.some((c) => c.endDate === null);
 
   // Handle start period
   const handleStartPeriod = () => {
@@ -88,7 +87,6 @@ export default function HomeRoutePage() {
       <main className="flex-1 p-4 pb-20 overflow-auto">
         <HomePage
           cycles={cycles}
-          hasOngoingPeriod={hasOngoingPeriod}
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
           showStartDialog={showStartDialog}

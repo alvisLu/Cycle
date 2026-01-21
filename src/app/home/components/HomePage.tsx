@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus, Check } from "lucide-react";
-import { format } from "date-fns";
+import { addDays, differenceInDays, format, parseISO } from "date-fns";
 import { zhTW } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,6 @@ import { PeriodCycle, getPeriodStatus } from "@/lib/period";
 
 interface HomePageProps {
   cycles: PeriodCycle[];
-  hasOngoingPeriod: boolean;
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
   showStartDialog: boolean;
@@ -31,7 +30,6 @@ interface HomePageProps {
 
 export function HomePage({
   cycles,
-  hasOngoingPeriod,
   selectedDate,
   setSelectedDate,
   showStartDialog,
@@ -41,7 +39,22 @@ export function HomePage({
   onStartPeriod,
   onEndPeriod,
 }: HomePageProps) {
-  const status = getPeriodStatus(cycles);
+  const today = new Date();
+  const status = getPeriodStatus(cycles, today);
+
+  // 計算下次預期經期開始日期（只在非經期中且有完整紀錄時使用）
+  const completedCycles = cycles.filter((c) => c.endDate !== null);
+  const nextExpectedStart =
+    !status.isOnPeriod && completedCycles.length > 0
+      ? addDays(
+        parseISO(completedCycles[completedCycles.length - 1].startDate),
+        status.averageCycleLength
+      )
+      : null;
+
+  const daysUntilNextFromToday = nextExpectedStart
+    ? differenceInDays(nextExpectedStart, today)
+    : null;
 
   return (
     <>
@@ -52,7 +65,7 @@ export function HomePage({
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">
-              {format(new Date(), "yyyy年M月d日 EEEE", { locale: zhTW })}
+              {format(today, "yyyy年M月d日 EEEE", { locale: zhTW })}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -69,18 +82,54 @@ export function HomePage({
                     預計還有 {status.daysUntilEnd} 天結束
                   </p>
                 )}
+                {status.daysUntilEnd === 0 &&
+                  nextExpectedStart &&
+                  daysUntilNextFromToday !== null && (
+                    <p className="text-center text-muted-foreground">
+                      本次經期今天預計結束。
+                      {daysUntilNextFromToday > 0 ? (
+                        <>
+                          預計下次經期
+                          {format(nextExpectedStart, "M月d日", { locale: zhTW })}
+                          （約 {daysUntilNextFromToday} 天後）
+                        </>
+                      ) : (
+                        <>
+                          預計下次經期
+                          {format(nextExpectedStart, "M月d日", { locale: zhTW })}
+                          （可能已遲到 {Math.abs(daysUntilNextFromToday)} 天）
+                        </>
+                      )}
+                    </p>
+                  )}
               </div>
             ) : (
               <div className="space-y-2">
-                <div className="text-3xl font-bold text-center py-4">
-                  {status.daysUntilNext !== null ? (
-                    status.daysUntilNext > 0 ? (
-                      <>距離下次經期約 {status.daysUntilNext} 天</>
+                <div className="text-center py-4">
+                  {nextExpectedStart && daysUntilNextFromToday !== null ? (
+                    daysUntilNextFromToday > 0 ? (
+                      <>
+                        <div className="text-3xl font-bold text-center py-2">
+                          預計下次經期
+                        </div>
+                        <div className="text-xl font-bold text-center">
+                          {format(nextExpectedStart, "M月d日", { locale: zhTW })}（約
+                          {daysUntilNextFromToday} 天後）
+                        </div>
+                      </>
                     ) : (
-                      <>經期可能已遲到 {Math.abs(status.daysUntilNext)} 天</>
+                      <>
+                        <div className="text-3xl font-bold text-center py-2">
+                          預計下次經期
+                        </div>
+                        <div className="text-xl font-bold text-center">
+                          {format(nextExpectedStart, "M月d日", { locale: zhTW })}（可能已遲到
+                          {Math.abs(daysUntilNextFromToday)} 天）
+                        </div>
+                      </>
                     )
                   ) : (
-                    <>暫無資料</>
+                    <div className="text-xl font-bold text-center">暫無資料</div>
                   )}
                 </div>
                 <p className="text-center text-muted-foreground text-sm">
@@ -93,7 +142,7 @@ export function HomePage({
 
         {/* Action buttons */}
         <div className="flex gap-2">
-          {!hasOngoingPeriod ? (
+          {!status.isOnPeriod ? (
             <Button
               onClick={() => {
                 setSelectedDate(new Date());

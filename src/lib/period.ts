@@ -91,18 +91,10 @@ export function getPeriodStatus(
 
   const isOnPeriod = currentCycle !== null;
 
-  // Calculate days until end (if on period)
-  let daysUntilEnd: number | null = null;
-  let daysSinceStart: number | null = null;
-  if (currentCycle) {
-    daysSinceStart = differenceInDays(today, parseISO(currentCycle.startDate));
-    if (currentCycle.endDate) {
-      daysUntilEnd = differenceInDays(parseISO(currentCycle.endDate), today);
-    }
-  }
-
-  // Calculate average cycle length
+  // Completed cycles (有開始且有結束的週期)
   const completedCycles = cycles.filter((c) => c.endDate);
+
+  // Calculate average cycle length（平均週期長度：兩次經期開始的間隔）
   let averageCycleLength = 28; // Default
   if (completedCycles.length >= 2) {
     const cycleLengths: number[] = [];
@@ -114,6 +106,37 @@ export function getPeriodStatus(
     averageCycleLength = Math.round(
       cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length
     );
+  }
+
+  // Calculate days until end (if on period)
+  let daysUntilEnd: number | null = null;
+  let daysSinceStart: number | null = null;
+  if (currentCycle) {
+    const start = parseISO(currentCycle.startDate);
+    daysSinceStart = differenceInDays(today, start);
+
+    if (currentCycle.endDate) {
+      // 已實際紀錄結束日
+      daysUntilEnd = differenceInDays(parseISO(currentCycle.endDate), today);
+    } else {
+      // 尚未設定結束日：用「平均經期長度」推估預期結束日
+      // 平均經期長度：每個完成週期的 (end - start + 1) 天數
+      let averagePeriodLength = 7; // fallback 預設 7 天
+      if (completedCycles.length > 0) {
+        const periodLengths = completedCycles.map((c) => {
+          const s = parseISO(c.startDate);
+          const e = parseISO(c.endDate as string);
+          // +1 代表首尾都算在內
+          return differenceInDays(e, s) + 1;
+        });
+        averagePeriodLength = Math.round(
+          periodLengths.reduce((a, b) => a + b, 0) / periodLengths.length
+        );
+      }
+
+      const expectedEnd = addDays(start, averagePeriodLength - 1);
+      daysUntilEnd = differenceInDays(expectedEnd, today);
+    }
   }
 
   // Calculate days until next period
