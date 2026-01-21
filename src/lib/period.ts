@@ -1,0 +1,213 @@
+import {
+  parseISO,
+  differenceInDays,
+  addDays,
+  isWithinInterval,
+  isBefore,
+  isAfter,
+  format,
+} from "date-fns";
+
+export interface PeriodEvent {
+  date: string;
+  event: "Starts" | "Ends";
+}
+
+export interface PeriodCycle {
+  startDate: string;
+  endDate: string | null;
+}
+
+// Parse period events into cycles
+export function parsePeriodCycles(events: PeriodEvent[]): PeriodCycle[] {
+  const cycles: PeriodCycle[] = [];
+  let currentStart: string | null = null;
+
+  for (const event of events) {
+    if (event.event === "Starts") {
+      currentStart = event.date;
+    } else if (event.event === "Ends" && currentStart) {
+      cycles.push({
+        startDate: currentStart,
+        endDate: event.date,
+      });
+      currentStart = null;
+    }
+  }
+
+  // Handle ongoing period (started but not ended)
+  if (currentStart) {
+    cycles.push({
+      startDate: currentStart,
+      endDate: null,
+    });
+  }
+
+  return cycles;
+}
+
+// Get current period status
+export interface PeriodStatus {
+  isOnPeriod: boolean;
+  currentCycle: PeriodCycle | null;
+  daysUntilEnd: number | null;
+  daysUntilNext: number | null;
+  daysSinceStart: number | null;
+  averageCycleLength: number;
+}
+
+export function getPeriodStatus(
+  cycles: PeriodCycle[],
+  today: Date = new Date()
+): PeriodStatus {
+  const todayStr = format(today, "yyyy-MM-dd");
+
+  // Find if currently on period
+  let currentCycle: PeriodCycle | null = null;
+  for (const cycle of cycles) {
+    const startDate = parseISO(cycle.startDate);
+    const endDate = cycle.endDate ? parseISO(cycle.endDate) : null;
+
+    if (endDate) {
+      if (
+        isWithinInterval(today, { start: startDate, end: endDate }) ||
+        format(startDate, "yyyy-MM-dd") === todayStr ||
+        format(endDate, "yyyy-MM-dd") === todayStr
+      ) {
+        currentCycle = cycle;
+        break;
+      }
+    } else {
+      // Ongoing period
+      if (
+        format(startDate, "yyyy-MM-dd") === todayStr ||
+        isBefore(startDate, today)
+      ) {
+        currentCycle = cycle;
+        break;
+      }
+    }
+  }
+
+  const isOnPeriod = currentCycle !== null;
+
+  // Calculate days until end (if on period)
+  let daysUntilEnd: number | null = null;
+  let daysSinceStart: number | null = null;
+  if (currentCycle) {
+    daysSinceStart = differenceInDays(today, parseISO(currentCycle.startDate));
+    if (currentCycle.endDate) {
+      daysUntilEnd = differenceInDays(parseISO(currentCycle.endDate), today);
+    }
+  }
+
+  // Calculate average cycle length
+  const completedCycles = cycles.filter((c) => c.endDate);
+  let averageCycleLength = 28; // Default
+  if (completedCycles.length >= 2) {
+    const cycleLengths: number[] = [];
+    for (let i = 1; i < completedCycles.length; i++) {
+      const prevStart = parseISO(completedCycles[i - 1].startDate);
+      const currStart = parseISO(completedCycles[i].startDate);
+      cycleLengths.push(differenceInDays(currStart, prevStart));
+    }
+    averageCycleLength = Math.round(
+      cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length
+    );
+  }
+
+  // Calculate days until next period
+  let daysUntilNext: number | null = null;
+  if (!isOnPeriod && completedCycles.length > 0) {
+    const lastCycle = completedCycles[completedCycles.length - 1];
+    const lastStartDate = parseISO(lastCycle.startDate);
+    const expectedNextStart = addDays(lastStartDate, averageCycleLength);
+
+    if (isAfter(expectedNextStart, today)) {
+      daysUntilNext = differenceInDays(expectedNextStart, today);
+    } else {
+      // Overdue
+      daysUntilNext = differenceInDays(expectedNextStart, today);
+    }
+  }
+
+  return {
+    isOnPeriod,
+    currentCycle,
+    daysUntilEnd,
+    daysUntilNext,
+    daysSinceStart,
+    averageCycleLength,
+  };
+}
+
+// Get all days that are period days (for calendar highlighting)
+export function getAllPeriodDays(cycles: PeriodCycle[]): Date[] {
+  const days: Date[] = [];
+
+  for (const cycle of cycles) {
+    const startDate = parseISO(cycle.startDate);
+    const endDate = cycle.endDate
+      ? parseISO(cycle.endDate)
+      : addDays(startDate, 6); // Default to 7 days if ongoing
+
+    let current = startDate;
+    while (current <= endDate) {
+      days.push(current);
+      current = addDays(current, 1);
+    }
+  }
+
+  return days;
+}
+
+// Add a new period start
+export function addPeriodStart(
+  events: PeriodEvent[],
+  date: string
+): PeriodEvent[] {
+  const newEvents = [...events, { date, event: "Starts" as const }];
+  return newEvents.sort(
+    (a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime()
+  );
+}
+
+// Add a period end
+export function addPeriodEnd(
+  events: PeriodEvent[],
+  date: string
+): PeriodEvent[] {
+  const newEvents = [...events, { date, event: "Ends" as const }];
+  return newEvents.sort(
+    (a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime()
+  );
+}
+
+// Delete a period cycle
+export function deletePeriodCycle(
+  events: PeriodEvent[],
+  startDate: string,
+  endDate: string | null
+): PeriodEvent[] {
+  return events.filter((e) => {
+    if (e.date === startDate && e.event === "Starts") return false;
+    if (endDate && e.date === endDate && e.event === "Ends") return false;
+    return true;
+  });
+}
+
+// Update a period cycle
+export function updatePeriodCycle(
+  events: PeriodEvent[],
+  oldStartDate: string,
+  oldEndDate: string | null,
+  newStartDate: string,
+  newEndDate: string | null
+): PeriodEvent[] {
+  let newEvents = deletePeriodCycle(events, oldStartDate, oldEndDate);
+  newEvents = addPeriodStart(newEvents, newStartDate);
+  if (newEndDate) {
+    newEvents = addPeriodEnd(newEvents, newEndDate);
+  }
+  return newEvents;
+}
