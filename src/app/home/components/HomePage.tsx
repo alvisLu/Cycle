@@ -16,6 +16,19 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { PeriodCycle, getPeriodStatus } from "@/lib/period";
 
+const styles = {
+  pageWrapper: "space-y-4",
+  pageTitle: "text-xl font-semibold text-center mb-6",
+  statusMainTitle: "text-3xl font-bold text-center py-4",
+  statusDaysText: "text-xl font-bold text-center",
+  nextPeriodBlock: "space-y-2",
+  nextPeriodInner: "py-4 flex flex-col items-center",
+  nextPeriodTitle: "text-3xl font-bold text-center py-2",
+  nextPeriodDate: "text-xl font-bold text-center",
+  mutedSubText: "text-center text-muted-foreground",
+  mutedSmallText: "text-center text-muted-foreground text-sm",
+};
+
 interface HomePageProps {
   cycles: PeriodCycle[];
   selectedDate: Date;
@@ -69,10 +82,24 @@ export function HomePage({
   const currentCycleStartDate =
     status.currentCycle?.startDate ? parseISO(status.currentCycle.startDate) : null;
 
+  const renderNextPeriodText = () => {
+    if (!nextExpectedStart || daysUntilNextFromToday === null) return null;
+    const formattedDate = format(nextExpectedStart, "M月d日", { locale: zhTW });
+
+    return (
+      <>
+        {formattedDate}
+        {daysUntilNextFromToday > 0 ?
+          `(約 ${daysUntilNextFromToday} 天後)` :
+          `(已遲到 ${Math.abs(daysUntilNextFromToday)} 天)`}
+      </>
+    );
+  };
+
   return (
     <>
-      <div className="space-y-4">
-        <h1 className="text-xl font-semibold text-center mb-6">經期追蹤</h1>
+      <div className={styles.pageWrapper}>
+        <h1 className={styles.pageTitle}>經期追蹤</h1>
 
         {/* Status card */}
         <Card>
@@ -89,68 +116,36 @@ export function HomePage({
           <CardContent>
             {status.isOnPeriod ? (
               <div className="space-y-2">
-                <div className="text-3xl font-bold text-center py-4">
+                <div className={styles.statusMainTitle}>
                   經期中
                 </div>
-                <p className="text-center text-muted-foreground">
+                <p className={styles.statusDaysText}>
                   已經第 {(status.daysSinceStart ?? 0) + 1} 天
                 </p>
-                {status.daysUntilEnd !== null && status.daysUntilEnd > 0 && (
-                  <p className="text-center text-muted-foreground">
-                    預計還有 {status.daysUntilEnd} 天結束
-                  </p>
-                )}
-                {status.daysUntilEnd === 0 &&
-                  nextExpectedStart &&
-                  daysUntilNextFromToday !== null && (
-                    <p className="text-center text-muted-foreground">
-                      本次經期今天預計結束。
-                      {daysUntilNextFromToday > 0 ? (
-                        <>
-                          預計下次經期
-                          {format(nextExpectedStart, "M月d日", { locale: zhTW })}
-                          （約 {daysUntilNextFromToday} 天後）
-                        </>
-                      ) : (
-                        <>
-                          預計下次經期
-                          {format(nextExpectedStart, "M月d日", { locale: zhTW })}
-                          （可能已遲到 {Math.abs(daysUntilNextFromToday)} 天）
-                        </>
-                      )}
-                    </p>
-                  )}
+                <p className={styles.mutedSmallText}>
+                  {
+                    (status.daysUntilEnd !== null && status.daysUntilEnd > 0) ?
+                      ` 預計還有 ${status.daysUntilEnd} 天結束` : `今天結束。`
+                  }
+                </p>
               </div>
             ) : (
-              <div className="space-y-2">
-                <div className="text-center py-4">
-                  {nextExpectedStart && daysUntilNextFromToday !== null ? (
-                    daysUntilNextFromToday > 0 ? (
-                      <>
-                        <div className="text-3xl font-bold text-center py-2">
-                          預計下次經期
-                        </div>
-                        <div className="text-xl font-bold text-center">
-                          {format(nextExpectedStart, "M月d日", { locale: zhTW })}（約
-                          {daysUntilNextFromToday} 天後）
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="text-3xl font-bold text-center py-2">
-                          預計下次經期
-                        </div>
-                        <div className="text-xl font-bold text-center">
-                          {format(nextExpectedStart, "M月d日", { locale: zhTW })}（可能已遲到
-                          {Math.abs(daysUntilNextFromToday)} 天）
-                        </div>
-                      </>
-                    )
+              <div className={styles.nextPeriodBlock}>
+                <div className={styles.nextPeriodInner}>
+                  {renderNextPeriodText() ? (
+                    <>
+                      <div className={styles.nextPeriodTitle}>
+                        預計下次經期
+                      </div>
+                      <div className={styles.nextPeriodDate}>
+                        {renderNextPeriodText()}
+                      </div>
+                    </>
                   ) : (
-                    <div className="text-xl font-bold text-center">暫無資料</div>
+                    <div className={styles.nextPeriodDate}>暫無資料</div>
                   )}
                 </div>
-                <p className="text-center text-muted-foreground text-sm">
+                <p className={styles.mutedSmallText}>
                   平均週期: {status.averageCycleLength} 天
                 </p>
               </div>
