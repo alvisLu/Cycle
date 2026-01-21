@@ -13,11 +13,19 @@ import {
   subMonths,
   isSameMonth,
   isSameDay,
+  isWithinInterval,
+  isBefore,
+  isAfter,
 } from "date-fns";
 import { zhTW } from "date-fns/locale";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+
+export interface DateRange {
+  from: Date;
+  to: Date | null;
+}
 
 export interface CalendarProps {
   selected?: Date;
@@ -26,6 +34,10 @@ export interface CalendarProps {
   modifiers?: {
     periodDays?: Date[];
   };
+  // Range selection mode
+  mode?: "single" | "range";
+  selectedRange?: DateRange;
+  onSelectRange?: (range: DateRange) => void;
 }
 
 function Calendar({
@@ -33,8 +45,13 @@ function Calendar({
   onSelect,
   className,
   modifiers,
+  mode = "single",
+  selectedRange,
+  onSelectRange,
 }: CalendarProps) {
-  const [currentMonth, setCurrentMonth] = React.useState(new Date());
+  const [currentMonth, setCurrentMonth] = React.useState(
+    selectedRange?.from ?? selected ?? new Date()
+  );
 
   const periodDaysSet = React.useMemo(() => {
     const set = new Set<string>();
@@ -67,6 +84,46 @@ function Calendar({
 
   const handleNextMonth = () => {
     setCurrentMonth(addMonths(currentMonth, 1));
+  };
+
+  // Check if a date is within the selected range
+  const isInRange = (date: Date): boolean => {
+    if (mode !== "range" || !selectedRange?.from || !selectedRange?.to) return false;
+    const from = selectedRange.from;
+    const to = selectedRange.to;
+    return isWithinInterval(date, {
+      start: isBefore(from, to) ? from : to,
+      end: isAfter(from, to) ? from : to,
+    });
+  };
+
+  const isRangeStart = (date: Date): boolean => {
+    if (mode !== "range" || !selectedRange?.from) return false;
+    return isSameDay(date, selectedRange.from);
+  };
+
+  const isRangeEnd = (date: Date): boolean => {
+    if (mode !== "range" || !selectedRange?.to) return false;
+    return isSameDay(date, selectedRange.to);
+  };
+
+  const handleDateClick = (date: Date) => {
+    if (mode === "range" && onSelectRange) {
+      if (!selectedRange?.from || (selectedRange.from && selectedRange.to)) {
+        // Start new selection
+        onSelectRange({ from: date, to: null });
+      } else {
+        // Complete the selection
+        const from = selectedRange.from;
+        if (isBefore(date, from)) {
+          onSelectRange({ from: date, to: from });
+        } else {
+          onSelectRange({ from, to: date });
+        }
+      }
+    } else {
+      onSelect?.(date);
+    }
   };
 
   return (
@@ -103,19 +160,32 @@ function Calendar({
         {weeks.map((week, weekIdx) =>
           week.map((dayDate, dayIdx) => {
             const isCurrentMonth = isSameMonth(dayDate, currentMonth);
-            const isSelected = selected && isSameDay(dayDate, selected);
+            const isSelected = mode === "single" && selected && isSameDay(dayDate, selected);
             const isPeriodDay = periodDaysSet.has(format(dayDate, "yyyy-MM-dd"));
+            const inRange = isInRange(dayDate);
+            const rangeStart = isRangeStart(dayDate);
+            const rangeEnd = isRangeEnd(dayDate);
 
             return (
               <button
                 key={`${weekIdx}-${dayIdx}`}
-                onClick={() => onSelect?.(dayDate)}
+                onClick={() => handleDateClick(dayDate)}
                 className={cn(
-                  "h-9 w-9 rounded-full text-sm transition-colors",
+                  "h-9 w-9 text-sm transition-colors",
+                  // Default rounded
+                  "rounded-full",
                   !isCurrentMonth && "text-muted-foreground/50",
                   isCurrentMonth && "hover:bg-accent",
+                  // Single selection
                   isSelected && "bg-primary text-primary-foreground hover:bg-primary",
-                  isPeriodDay && !isSelected && "bg-gray-300 text-gray-800"
+                  isPeriodDay && !isSelected && !inRange && !rangeStart && !rangeEnd && "bg-gray-300 text-gray-800",
+                  // Range selection styling
+                  inRange && !rangeStart && !rangeEnd && "bg-primary/20 rounded-none",
+                  rangeStart && "bg-primary text-primary-foreground rounded-l-full rounded-r-none",
+                  rangeEnd && "bg-primary text-primary-foreground rounded-r-full rounded-l-none",
+                  rangeStart && rangeEnd && "rounded-full",
+                  // When only start is selected (no end yet)
+                  rangeStart && !selectedRange?.to && "rounded-full"
                 )}
               >
                 {format(dayDate, "d")}

@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar, DateRange } from "@/components/ui/calendar";
 import {
   PeriodEvent,
   PeriodCycle,
@@ -40,8 +40,7 @@ export default function App() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [editingCycle, setEditingCycle] = useState<PeriodCycle | null>(null);
-  const [editStartDate, setEditStartDate] = useState<Date>(new Date());
-  const [editEndDate, setEditEndDate] = useState<Date | null>(null);
+  const [editRange, setEditRange] = useState<DateRange>({ from: new Date(), to: null });
 
   // Load data
   useEffect(() => {
@@ -92,8 +91,10 @@ export default function App() {
   // Handle edit cycle
   const handleEditCycle = (cycle: PeriodCycle) => {
     setEditingCycle(cycle);
-    setEditStartDate(new Date(cycle.startDate));
-    setEditEndDate(cycle.endDate ? new Date(cycle.endDate) : null);
+    setEditRange({
+      from: new Date(cycle.startDate),
+      to: cycle.endDate ? new Date(cycle.endDate) : null,
+    });
     setShowEditDialog(true);
   };
 
@@ -104,8 +105,8 @@ export default function App() {
       events,
       editingCycle.startDate,
       editingCycle.endDate,
-      format(editStartDate, "yyyy-MM-dd"),
-      editEndDate ? format(editEndDate, "yyyy-MM-dd") : null
+      format(editRange.from, "yyyy-MM-dd"),
+      editRange.to ? format(editRange.to, "yyyy-MM-dd") : null
     );
     saveEvents(newEvents);
     setShowEditDialog(false);
@@ -351,17 +352,24 @@ export default function App() {
             <DialogTitle>編輯經期紀錄</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <p className="text-sm font-medium mb-2">開始日期</p>
-              <Calendar selected={editStartDate} onSelect={setEditStartDate} />
+            {/* Display selected range */}
+            <div className="text-center text-sm text-muted-foreground">
+              <span className="text-foreground font-medium">
+                {format(editRange.from, "M月d日", { locale: zhTW })}
+              </span>
+              <span className="mx-2">-</span>
+              <span className="text-foreground font-medium">
+                {editRange.to
+                  ? format(editRange.to, "M月d日", { locale: zhTW })
+                  : "點選結束日期"}
+              </span>
             </div>
-            <div>
-              <p className="text-sm font-medium mb-2">結束日期</p>
-              <Calendar
-                selected={editEndDate ?? undefined}
-                onSelect={setEditEndDate}
-              />
-            </div>
+            {/* Range calendar */}
+            <Calendar
+              mode="range"
+              selectedRange={editRange}
+              onSelectRange={setEditRange}
+            />
           </div>
           <DialogFooter className="flex-col gap-2 sm:flex-col">
             <div className="flex gap-2 w-full">
