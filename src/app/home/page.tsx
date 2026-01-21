@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Home, CalendarDays } from "lucide-react";
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -13,6 +13,7 @@ import {
   parsePeriodCycles,
   addPeriodStart,
   addPeriodEnd,
+  getPeriodStatus,
 } from "@/lib/period";
 import { HomePage } from "./components/HomePage";
 
@@ -53,11 +54,20 @@ export default function HomeRoutePage() {
   };
 
   const cycles = parsePeriodCycles(events);
+  const status = getPeriodStatus(cycles);
 
   // Handle start period
   const handleStartPeriod = () => {
     const dateStr = format(selectedDate, "yyyy-MM-dd");
-    const newEvents = addPeriodStart(events, dateStr);
+    let newEvents = addPeriodStart(events, dateStr);
+
+    // 依平均經期天數，自動帶入預設結束日
+    if (status.averagePeriodLength && status.averagePeriodLength > 0) {
+      const defaultEndDate = addDays(selectedDate, status.averagePeriodLength - 1);
+      const defaultEndStr = format(defaultEndDate, "yyyy-MM-dd");
+      newEvents = addPeriodEnd(newEvents, defaultEndStr);
+    }
+
     saveEvents(newEvents);
     setShowStartDialog(false);
     setSelectedDate(new Date());

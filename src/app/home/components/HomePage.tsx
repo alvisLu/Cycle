@@ -56,6 +56,14 @@ export function HomePage({
     ? differenceInDays(nextExpectedStart, today)
     : null;
 
+  // 預估本次經期的連續日期（用於「經期開始」對話框中的日曆高亮）
+  const predictedPeriodDays =
+    status.averagePeriodLength && status.averagePeriodLength > 0
+      ? Array.from({ length: status.averagePeriodLength }, (_, i) =>
+        addDays(selectedDate, i)
+      )
+      : [];
+
   return (
     <>
       <div className="space-y-4">
@@ -65,7 +73,12 @@ export function HomePage({
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">
-              {format(today, "yyyy年M月d日 EEEE", { locale: zhTW })}
+              <div className="text-s font-bold flex justify-between items-center pt-2">
+                <div>{format(today, "yyyy年M月d日 EEEE", { locale: zhTW })}</div>
+                {status.averagePeriodLength !== null && (
+                  <div className="text-sm text-muted-foreground">{`平均經期: ${status.averagePeriodLength} 天`}</div>
+                )}
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -175,7 +188,11 @@ export function HomePage({
           <DialogHeader>
             <DialogTitle>經期開始日期</DialogTitle>
           </DialogHeader>
-          <Calendar selected={selectedDate} onSelect={setSelectedDate} />
+          <Calendar
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            modifiers={{ periodDays: predictedPeriodDays }}
+          />
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowStartDialog(false)}>
               取消

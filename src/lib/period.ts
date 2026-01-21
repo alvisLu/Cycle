@@ -6,6 +6,7 @@ import {
   isBefore,
   isAfter,
   format,
+  subMonths,
 } from "date-fns";
 
 export interface PeriodEvent {
@@ -54,6 +55,7 @@ export interface PeriodStatus {
   daysUntilNext: number | null;
   daysSinceStart: number | null;
   averageCycleLength: number;
+  averagePeriodLength: number | null;
 }
 
 export function getPeriodStatus(
@@ -108,6 +110,26 @@ export function getPeriodStatus(
     );
   }
 
+  // Calculate average period length（平均經期天數：每次開始到結束的天數）
+  let averagePeriodLength: number | null = null;
+  // 只使用「過去 6 個月內」的完成週期來計算
+  const sixMonthsAgo = subMonths(today, 6);
+  const recentCompletedCycles = completedCycles.filter((c) => {
+    const end = parseISO(c.endDate as string);
+    return !isBefore(end, sixMonthsAgo);
+  });
+  if (recentCompletedCycles.length > 0) {
+    const periodLengths = recentCompletedCycles.map((c) => {
+      const s = parseISO(c.startDate);
+      const e = parseISO(c.endDate as string);
+      // +1 代表首尾都算在內
+      return differenceInDays(e, s) + 1;
+    });
+    averagePeriodLength = Math.round(
+      periodLengths.reduce((a, b) => a + b, 0) / periodLengths.length
+    );
+  }
+
   // Calculate days until end (if on period)
   let daysUntilEnd: number | null = null;
   let daysSinceStart: number | null = null;
@@ -118,22 +140,8 @@ export function getPeriodStatus(
     if (currentCycle.endDate) {
       // 已實際紀錄結束日
       daysUntilEnd = differenceInDays(parseISO(currentCycle.endDate), today);
-    } else {
-      // 尚未設定結束日：用「平均經期長度」推估預期結束日
-      // 平均經期長度：每個完成週期的 (end - start + 1) 天數
-      let averagePeriodLength = 7; // fallback 預設 7 天
-      if (completedCycles.length > 0) {
-        const periodLengths = completedCycles.map((c) => {
-          const s = parseISO(c.startDate);
-          const e = parseISO(c.endDate as string);
-          // +1 代表首尾都算在內
-          return differenceInDays(e, s) + 1;
-        });
-        averagePeriodLength = Math.round(
-          periodLengths.reduce((a, b) => a + b, 0) / periodLengths.length
-        );
-      }
-
+    } else if (averagePeriodLength !== null) {
+      // 尚未設定結束日：用「平均經期天數」推估預期結束日
       const expectedEnd = addDays(start, averagePeriodLength - 1);
       daysUntilEnd = differenceInDays(expectedEnd, today);
     }
@@ -161,6 +169,7 @@ export function getPeriodStatus(
     daysUntilNext,
     daysSinceStart,
     averageCycleLength,
+    averagePeriodLength,
   };
 }
 
