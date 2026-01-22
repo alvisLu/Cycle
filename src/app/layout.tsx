@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { BottomNav } from "@/components/BottomNav";
 
 export const metadata: Metadata = {
   title: "經期追蹤",
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang="zh-TW">
       <body className="antialiased">
         {children}
+        <BottomNav />
       </body>
     </html>
   );
