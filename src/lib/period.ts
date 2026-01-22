@@ -7,7 +7,14 @@ import {
   isAfter,
   format,
   subMonths,
+  startOfDay,
 } from "date-fns";
+
+// 將 ISO 日期字串解析為本地時區的午夜時間
+function parseLocalDate(dateStr: string): Date {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
 
 export interface PeriodEvent {
   date: string;
@@ -62,17 +69,19 @@ export function getPeriodStatus(
   cycles: PeriodCycle[],
   today: Date = new Date()
 ): PeriodStatus {
-  const todayStr = format(today, "yyyy-MM-dd");
+  // 統一使用當天午夜時間，避免時區問題
+  const normalizedToday = startOfDay(today);
+  const todayStr = format(normalizedToday, "yyyy-MM-dd");
 
   // Find if currently on period
   let currentCycle: PeriodCycle | null = null;
   for (const cycle of cycles) {
-    const startDate = parseISO(cycle.startDate);
-    const endDate = cycle.endDate ? parseISO(cycle.endDate) : null;
+    const startDate = parseLocalDate(cycle.startDate);
+    const endDate = cycle.endDate ? parseLocalDate(cycle.endDate) : null;
 
     if (endDate) {
       if (
-        isWithinInterval(today, { start: startDate, end: endDate }) ||
+        isWithinInterval(normalizedToday, { start: startDate, end: endDate }) ||
         format(startDate, "yyyy-MM-dd") === todayStr ||
         format(endDate, "yyyy-MM-dd") === todayStr
       ) {
@@ -83,7 +92,7 @@ export function getPeriodStatus(
       // Ongoing period
       if (
         format(startDate, "yyyy-MM-dd") === todayStr ||
-        isBefore(startDate, today)
+        isBefore(startDate, normalizedToday)
       ) {
         currentCycle = cycle;
         break;
@@ -101,8 +110,8 @@ export function getPeriodStatus(
   if (completedCycles.length >= 2) {
     const cycleLengths: number[] = [];
     for (let i = 1; i < completedCycles.length; i++) {
-      const prevStart = parseISO(completedCycles[i - 1].startDate);
-      const currStart = parseISO(completedCycles[i].startDate);
+      const prevStart = parseLocalDate(completedCycles[i - 1].startDate);
+      const currStart = parseLocalDate(completedCycles[i].startDate);
       cycleLengths.push(differenceInDays(currStart, prevStart));
     }
     averageCycleLength = Math.round(
@@ -113,15 +122,15 @@ export function getPeriodStatus(
   // Calculate average period length（平均經期天數：每次開始到結束的天數）
   let averagePeriodLength: number | null = null;
   // 只使用「過去 6 個月內」的完成週期來計算
-  const sixMonthsAgo = subMonths(today, 6);
+  const sixMonthsAgo = subMonths(normalizedToday, 6);
   const recentCompletedCycles = completedCycles.filter((c) => {
-    const end = parseISO(c.endDate as string);
+    const end = parseLocalDate(c.endDate as string);
     return !isBefore(end, sixMonthsAgo);
   });
   if (recentCompletedCycles.length > 0) {
     const periodLengths = recentCompletedCycles.map((c) => {
-      const s = parseISO(c.startDate);
-      const e = parseISO(c.endDate as string);
+      const s = parseLocalDate(c.startDate);
+      const e = parseLocalDate(c.endDate as string);
       // +1 代表首尾都算在內
       return differenceInDays(e, s) + 1;
     });
@@ -134,16 +143,16 @@ export function getPeriodStatus(
   let daysUntilEnd: number | null = null;
   let daysSinceStart: number | null = null;
   if (currentCycle) {
-    const start = parseISO(currentCycle.startDate);
-    daysSinceStart = differenceInDays(today, start);
+    const start = parseLocalDate(currentCycle.startDate);
+    daysSinceStart = differenceInDays(normalizedToday, start);
 
     if (currentCycle.endDate) {
       // 已實際紀錄結束日
-      daysUntilEnd = differenceInDays(parseISO(currentCycle.endDate), today);
+      daysUntilEnd = differenceInDays(parseLocalDate(currentCycle.endDate), normalizedToday);
     } else if (averagePeriodLength !== null) {
       // 尚未設定結束日：用「平均經期天數」推估預期結束日
       const expectedEnd = addDays(start, averagePeriodLength - 1);
-      daysUntilEnd = differenceInDays(expectedEnd, today);
+      daysUntilEnd = differenceInDays(expectedEnd, normalizedToday);
     }
   }
 
@@ -151,14 +160,14 @@ export function getPeriodStatus(
   let daysUntilNext: number | null = null;
   if (!isOnPeriod && completedCycles.length > 0) {
     const lastCycle = completedCycles[completedCycles.length - 1];
-    const lastStartDate = parseISO(lastCycle.startDate);
+    const lastStartDate = parseLocalDate(lastCycle.startDate);
     const expectedNextStart = addDays(lastStartDate, averageCycleLength);
 
-    if (isAfter(expectedNextStart, today)) {
-      daysUntilNext = differenceInDays(expectedNextStart, today);
+    if (isAfter(expectedNextStart, normalizedToday)) {
+      daysUntilNext = differenceInDays(expectedNextStart, normalizedToday);
     } else {
       // Overdue
-      daysUntilNext = differenceInDays(expectedNextStart, today);
+      daysUntilNext = differenceInDays(expectedNextStart, normalizedToday);
     }
   }
 
@@ -178,9 +187,9 @@ export function getAllPeriodDays(cycles: PeriodCycle[]): Date[] {
   const days: Date[] = [];
 
   for (const cycle of cycles) {
-    const startDate = parseISO(cycle.startDate);
+    const startDate = parseLocalDate(cycle.startDate);
     const endDate = cycle.endDate
-      ? parseISO(cycle.endDate)
+      ? parseLocalDate(cycle.endDate)
       : addDays(startDate, 6); // Default to 7 days if ongoing
 
     let current = startDate;
