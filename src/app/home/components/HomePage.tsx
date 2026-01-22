@@ -16,16 +16,16 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { PeriodCycle, getPeriodStatus } from "@/lib/period";
+import { ButtonGroup } from "@/components/ui/button-group";
 
 const styles = {
   pageWrapper: "space-y-4",
   pageTitle: "text-xl font-semibold text-center mb-6",
   statusMainTitle: "text-3xl font-bold text-center py-4",
-  statusDaysText: "text-xl font-bold text-center",
-  nextPeriodBlock: "space-y-2",
-  nextPeriodInner: "py-4 flex flex-col items-center",
-  nextPeriodTitle: "text-3xl font-bold text-center py-2",
-  nextPeriodDate: "text-xl font-bold text-center",
+  statusDaysText: "text-6xl font-bold text-center",
+  periodBlock: "space-y-2 py-4 flex flex-col items-center",
+  periodTitle: "text-3xl font-bold text-center py-2",
+  periodDate: "flex flex-col items-center gap-2 space-y-2",
   mutedSubText: "text-center text-muted-foreground",
   mutedSmallText: "text-center text-muted-foreground text-sm",
 };
@@ -83,17 +83,48 @@ export function HomePage({
   const currentCycleStartDate =
     status.currentCycle?.startDate ? parseISO(status.currentCycle.startDate) : null;
 
-  const renderNextPeriodText = () => {
-    if (!nextExpectedStart || daysUntilNextFromToday === null) return null;
+  const nextPeriod = () => {
+    if (!nextExpectedStart || daysUntilNextFromToday === null) {
+      return (<div className={styles.periodTitle}>暫無資料</div>);
+    }
+
     const formattedDate = format(nextExpectedStart, "M月d日", { locale: zhTW });
+    let message = "今天"
+
+    if (daysUntilNextFromToday > 0) {
+      message = `${daysUntilNextFromToday} 天後`
+    } else if (daysUntilNextFromToday < 0) {
+      message = `遲到 ${Math.abs(daysUntilNextFromToday)} 天`
+    }
 
     return (
-      <>
-        {formattedDate}
-        {daysUntilNextFromToday > 0 ?
-          `(約 ${daysUntilNextFromToday} 天後)` :
-          `(已遲到 ${Math.abs(daysUntilNextFromToday)} 天)`}
-      </>
+      <div className={styles.periodBlock}>
+        <div className={styles.periodTitle}>
+          下次經期
+        </div>
+        <div className={styles.periodDate}>
+          <p className={styles.statusDaysText}>{formattedDate}</p>
+          <Badge variant="outline" className="text-xl">{message}</Badge>
+        </div>
+      </div>
+    );
+  };
+
+  const duringPeriod = () => {
+    const message = (status.daysUntilEnd !== null && status.daysUntilEnd > 0) ?
+      `剩 ${status.daysUntilEnd} 天` : `今天結束`
+    return (
+      <div className={styles.periodBlock}>
+        <div className={styles.periodTitle}>
+          經期中
+        </div>
+        <div className={styles.periodDate}>
+          <p className={styles.statusDaysText}>
+            {(status.daysSinceStart ?? 0) + 1} 天
+          </p>
+          <Badge variant="outline" className="text-sm">{message}</Badge>
+        </div>
+      </div>
     );
   };
 
@@ -106,52 +137,24 @@ export function HomePage({
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">
-              <div className="text-s font-bold flex justify-between items-center pt-2">
+              <div className="text-s font-bold flex justify-between items-center">
                 <div>{format(today, "yyyy年M月d日 EEEE", { locale: zhTW })}</div>
                 {status.averagePeriodLength !== null && (
-                  <Badge variant="outline" className="text-xs">
-                    平均經期: {status.averagePeriodLength} 天
-                  </Badge>
+                  <ButtonGroup
+                  >
+                    <Button variant="outline" size="sm">經期: {status.averagePeriodLength} 天</Button>
+                    <Button variant="outline" size="sm">週期: {status.averageCycleLength} 天</Button>
+                  </ButtonGroup>
                 )}
               </div>
             </CardTitle>
           </CardHeader>
+
           <CardContent>
             {status.isOnPeriod ? (
-              <div className="space-y-2">
-                <div className={styles.statusMainTitle}>
-                  經期中
-                </div>
-                <p className={styles.statusDaysText}>
-                  已經第 {(status.daysSinceStart ?? 0) + 1} 天
-                </p>
-                <p className={styles.mutedSmallText}>
-                  {
-                    (status.daysUntilEnd !== null && status.daysUntilEnd > 0) ?
-                      ` 預計還有 ${status.daysUntilEnd} 天結束` : `今天結束。`
-                  }
-                </p>
-              </div>
+              duringPeriod()
             ) : (
-              <div className={styles.nextPeriodBlock}>
-                <div className={styles.nextPeriodInner}>
-                  {renderNextPeriodText() ? (
-                    <>
-                      <div className={styles.nextPeriodTitle}>
-                        預計下次經期
-                      </div>
-                      <div className={styles.nextPeriodDate}>
-                        {renderNextPeriodText()}
-                      </div>
-                    </>
-                  ) : (
-                    <div className={styles.nextPeriodDate}>暫無資料</div>
-                  )}
-                </div>
-                <p className={styles.mutedSmallText}>
-                  平均週期: {status.averageCycleLength} 天
-                </p>
-              </div>
+              nextPeriod()
             )}
           </CardContent>
         </Card>
@@ -176,7 +179,7 @@ export function HomePage({
                 setShowEndDialog(true);
               }}
               className="flex-1"
-              variant="outline"
+              variant="default"
             >
               <Check className="mr-2 h-4 w-4" />
               經期結束
