@@ -79,15 +79,15 @@ export default function HomeRoutePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="h-full flex items-center justify-center bg-background">
         <p className="text-muted-foreground">載入中...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col max-w-md mx-auto">
-      <main className="flex-1 p-4 pb-20 overflow-auto">
+    <div className="h-full bg-background flex flex-col max-w-md mx-auto">
+      <main className="flex-1 p-4 pb-20 overflow-y-auto">
         <HomePage
           cycles={cycles}
           selectedDate={selectedDate}
