@@ -14,6 +14,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
+import { Badge } from "@/components/ui/badge";
 import { PeriodCycle, getPeriodStatus } from "@/lib/period";
 
 const styles = {
@@ -108,7 +109,9 @@ export function HomePage({
               <div className="text-s font-bold flex justify-between items-center pt-2">
                 <div>{format(today, "yyyy年M月d日 EEEE", { locale: zhTW })}</div>
                 {status.averagePeriodLength !== null && (
-                  <div className="text-sm text-muted-foreground">{`平均經期: ${status.averagePeriodLength} 天`}</div>
+                  <Badge variant="outline" className="text-xs">
+                    平均經期: {status.averagePeriodLength} 天
+                  </Badge>
                 )}
               </div>
             </CardTitle>
