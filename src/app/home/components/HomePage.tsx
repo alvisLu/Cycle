@@ -138,7 +138,7 @@ export function HomePage({
           <CardHeader className="pb-2">
             <CardTitle className="text-base">
               <div className="text-s font-bold flex justify-between items-center">
-                <div>{format(today, "yyyy年M月d日 EEEE", { locale: zhTW })}</div>
+                <div>{format(today, "yyyy-MM-dd EEEE", { locale: zhTW })}</div>
                 {status.averagePeriodLength !== null && (
                   <ButtonGroup
                   >

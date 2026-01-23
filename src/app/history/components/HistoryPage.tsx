@@ -1,10 +1,11 @@
 "use client";
 
-import { format } from "date-fns";
+import { useState } from "react";
+import { format, isSameMonth } from "date-fns";
 import { zhTW } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -36,17 +37,25 @@ export function HistoryPage({
   onSaveEdit,
   onDeleteCycle,
 }: HistoryPageProps) {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const periodDays = getAllPeriodDays(cycles);
+
+  // 找出當前月份的 cycles
+  const cyclesInCurrentMonth = cycles.filter((cycle) => {
+    const startDate = new Date(cycle.startDate);
+    return isSameMonth(startDate, currentMonth);
+  });
 
   return (
     <>
-      <div className="space-y-4">
-        <h1 className="text-xl font-semibold text-center mb-2">歷史紀錄</h1>
+      <div className="flex flex-col gap-4 h-full overflow-hidden">
+        <h1 className="text-xl font-semibold text-center">歷史紀錄</h1>
 
         <Card>
           <CardContent className="p-0">
             <Calendar
               modifiers={{ periodDays }}
+              onMonthChange={setCurrentMonth}
               onSelect={(date) => {
                 const dateStr = format(date, "yyyy-MM-dd");
                 const cycle = cycles.find((c) => {
@@ -60,50 +69,66 @@ export function HistoryPage({
               }}
             />
           </CardContent>
+          <CardFooter className="justify-end p-2">
+            <Button
+              variant="default"
+              size="sm"
+              disabled={cyclesInCurrentMonth.length === 0}
+              onClick={() => {
+                if (cyclesInCurrentMonth.length > 0) {
+                  onEditCycle(cyclesInCurrentMonth[0]);
+                }
+              }}
+            >
+              編輯紀錄
+            </Button>
+          </CardFooter>
         </Card>
 
         {/* Recent cycles list */}
-        <div className="space-y-2">
-          <h2 className="text-sm font-medium text-muted-foreground">
+        <div className="flex flex-col flex-1 min-h-0">
+          <h2 className="text-sm font-medium text-muted-foreground mb-2">
             最近紀錄
           </h2>
-          {cycles
-            .slice()
-            .reverse()
-            .slice(0, 6)
-            .map((cycle, idx) => (
-              <Card
-                key={idx}
-                className="cursor-pointer hover:bg-accent/50 transition-colors"
-                onClick={() => onEditCycle(cycle)}
-              >
-                <CardContent className="py-3 px-4">
-                  <div className="flex justify-between items-center">
-                    <span>
-                      {format(new Date(cycle.startDate), "M月d日", {
-                        locale: zhTW,
-                      })}
-                      {" - "}
-                      {cycle.endDate
-                        ? format(new Date(cycle.endDate), "M月d日", {
+          <div className="space-y-2 overflow-y-auto flex-1">
+            {cycles
+              .slice()
+              .reverse()
+              .slice(0, 6)
+              .map((cycle, idx) => (
+                <Card
+                  key={idx}
+                  className="cursor-pointer bg-muted hover:bg-accent/50 transition-colors"
+                  onClick={() => onEditCycle(cycle)}
+                >
+                  <CardContent className="py-3 px-4">
+                    <div className="flex justify-between items-center">
+                      <span>
+                        {format(new Date(cycle.startDate), "yyyy-MM-dd", {
                           locale: zhTW,
-                        })
-                        : "進行中"}
-                    </span>
-                    <span className="text-muted-foreground text-sm">
-                      {cycle.endDate
-                        ? `${Math.ceil(
-                          (new Date(cycle.endDate).getTime() -
-                            new Date(cycle.startDate).getTime()) /
-                          (1000 * 60 * 60 * 24)
-                        ) + 1
-                        } 天`
-                        : ""}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                        })}
+                        {" - "}
+                        {cycle.endDate
+                          ? format(new Date(cycle.endDate), "yyyy-MM-dd", {
+                            locale: zhTW,
+                          })
+                          : "進行中"}
+                      </span>
+                      <span className="text-muted-foreground text-sm">
+                        {cycle.endDate
+                          ? `${Math.ceil(
+                            (new Date(cycle.endDate).getTime() -
+                              new Date(cycle.startDate).getTime()) /
+                            (1000 * 60 * 60 * 24)
+                          ) + 1
+                          } 天`
+                          : ""}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+          </div>
         </div>
       </div>
 

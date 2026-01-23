@@ -38,6 +38,8 @@ export interface CalendarProps {
   mode?: "single" | "range";
   selectedRange?: DateRange;
   onSelectRange?: (range: DateRange) => void;
+  // Month change callback
+  onMonthChange?: (month: Date) => void;
 }
 
 function Calendar({
@@ -48,6 +50,7 @@ function Calendar({
   mode = "single",
   selectedRange,
   onSelectRange,
+  onMonthChange,
 }: CalendarProps) {
   const [currentMonth, setCurrentMonth] = React.useState(
     selectedRange?.from ?? selected ?? new Date()
@@ -79,11 +82,15 @@ function Calendar({
   }
 
   const handlePrevMonth = () => {
-    setCurrentMonth(subMonths(currentMonth, 1));
+    const newMonth = subMonths(currentMonth, 1);
+    setCurrentMonth(newMonth);
+    onMonthChange?.(newMonth);
   };
 
   const handleNextMonth = () => {
-    setCurrentMonth(addMonths(currentMonth, 1));
+    const newMonth = addMonths(currentMonth, 1);
+    setCurrentMonth(newMonth);
+    onMonthChange?.(newMonth);
   };
 
   // Check if a date is within the selected range
