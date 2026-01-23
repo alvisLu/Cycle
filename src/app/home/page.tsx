@@ -1,22 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { addDays, format } from "date-fns";
 
 import { DateRange } from "@/components/ui/calendar";
 import {
-  PeriodEvent,
   PeriodCycle,
   parsePeriodCycles,
   addPeriodStart,
   addPeriodEnd,
   getPeriodStatus,
 } from "@/lib/period";
+import { usePeriods } from "@/hooks/usePeriods";
 import { HomePage } from "./components/HomePage";
 
 export default function HomeRoutePage() {
-  const [events, setEvents] = useState<PeriodEvent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { periods: events, loading, savePeriods } = usePeriods();
 
   // Home page dialog states
   const [showStartDialog, setShowStartDialog] = useState(false);
@@ -26,27 +25,6 @@ export default function HomeRoutePage() {
   // dummy state for type compatibility with DateRange, not used on this page
   const [_editRange] = useState<DateRange>({ from: new Date(), to: null });
   const [_editingCycle] = useState<PeriodCycle | null>(null);
-
-  // Load data
-  useEffect(() => {
-    fetch("/api/periods")
-      .then((res) => res.json())
-      .then((data) => {
-        setEvents(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  // Save data
-  const saveEvents = async (newEvents: PeriodEvent[]) => {
-    setEvents(newEvents);
-    await fetch("/api/periods", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newEvents),
-    });
-  };
 
   const cycles = parsePeriodCycles(events);
   const status = getPeriodStatus(cycles);
@@ -63,7 +41,7 @@ export default function HomeRoutePage() {
       newEvents = addPeriodEnd(newEvents, defaultEndStr);
     }
 
-    saveEvents(newEvents);
+    savePeriods(newEvents);
     setShowStartDialog(false);
     setSelectedDate(new Date());
   };
@@ -72,7 +50,7 @@ export default function HomeRoutePage() {
   const handleEndPeriod = () => {
     const dateStr = format(selectedDate, "yyyy-MM-dd");
     const newEvents = addPeriodEnd(events, dateStr);
-    saveEvents(newEvents);
+    savePeriods(newEvents);
     setShowEndDialog(false);
     setSelectedDate(new Date());
   };

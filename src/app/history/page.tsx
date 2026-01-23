@@ -1,21 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { format } from "date-fns";
 
 import { DateRange } from "@/components/ui/calendar";
 import {
-  PeriodEvent,
   PeriodCycle,
   parsePeriodCycles,
   deletePeriodCycle,
   updatePeriodCycle,
 } from "@/lib/period";
+import { usePeriods } from "@/hooks/usePeriods";
 import { HistoryPage } from "./components/HistoryPage";
 
 export default function HistoryRoutePage() {
-  const [events, setEvents] = useState<PeriodEvent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { periods: events, loading, savePeriods } = usePeriods();
 
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingCycle, setEditingCycle] = useState<PeriodCycle | null>(null);
@@ -23,27 +22,6 @@ export default function HistoryRoutePage() {
     from: new Date(),
     to: null,
   });
-
-  // Load data
-  useEffect(() => {
-    fetch("/api/periods")
-      .then((res) => res.json())
-      .then((data) => {
-        setEvents(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  // Save data
-  const saveEvents = async (newEvents: PeriodEvent[]) => {
-    setEvents(newEvents);
-    await fetch("/api/periods", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newEvents),
-    });
-  };
 
   const cycles = parsePeriodCycles(events);
 
@@ -67,7 +45,7 @@ export default function HistoryRoutePage() {
       format(editRange.from, "yyyy-MM-dd"),
       editRange.to ? format(editRange.to, "yyyy-MM-dd") : null
     );
-    saveEvents(newEvents);
+    savePeriods(newEvents);
     setShowEditDialog(false);
     setEditingCycle(null);
   };
@@ -80,7 +58,7 @@ export default function HistoryRoutePage() {
       editingCycle.startDate,
       editingCycle.endDate
     );
-    saveEvents(newEvents);
+    savePeriods(newEvents);
     setShowEditDialog(false);
     setEditingCycle(null);
   };
