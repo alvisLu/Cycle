@@ -5,7 +5,7 @@ import { format, isSameMonth } from "date-fns";
 import { zhTW } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Calendar, DateRange } from "@/components/ui/calendar";
 import { PeriodCycle, getAllPeriodDays } from "@/lib/period";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface HistoryPageProps {
   cycles: PeriodCycle[];
@@ -69,6 +71,7 @@ export function HistoryPage({
               }}
             />
           </CardContent>
+          <Separator />
           <CardFooter className="justify-end p-2">
             <Button
               variant="default"
@@ -87,48 +90,47 @@ export function HistoryPage({
 
         {/* Recent cycles list */}
         <div className="flex flex-col flex-1 min-h-0">
-          <h2 className="text-sm font-medium text-muted-foreground mb-2">
-            最近紀錄
-          </h2>
-          <div className="space-y-2 overflow-y-auto flex-1">
-            {cycles
-              .slice()
-              .reverse()
-              .slice(0, 6)
-              .map((cycle, idx) => (
-                <Card
-                  key={idx}
-                  className="cursor-pointer bg-muted hover:bg-accent/50 transition-colors"
-                  onClick={() => onEditCycle(cycle)}
-                >
-                  <CardContent className="py-3 px-4">
-                    <div className="flex justify-between items-center">
-                      <span>
-                        {format(new Date(cycle.startDate), "yyyy-MM-dd", {
-                          locale: zhTW,
-                        })}
-                        {" - "}
-                        {cycle.endDate
-                          ? format(new Date(cycle.endDate), "yyyy-MM-dd", {
+          <Card className="flex-1 min-h-0 overflow-hidden">
+            <CardHeader>
+              <CardTitle>最近紀錄</CardTitle>
+            </CardHeader>
+            <ScrollArea className="h-full">
+              <CardContent>
+                {cycles
+                  .slice()
+                  .reverse()
+                  .slice(0, 12)
+                  .map((cycle, idx, arr) => (
+                    <div key={idx}>
+                      <div className="flex justify-between items-center py-2 text-muted-foreground">
+                        <span>
+                          {format(new Date(cycle.startDate), "yyyy-MM-dd", {
                             locale: zhTW,
-                          })
-                          : "進行中"}
-                      </span>
-                      <span className="text-muted-foreground text-sm">
-                        {cycle.endDate
-                          ? `${Math.ceil(
-                            (new Date(cycle.endDate).getTime() -
-                              new Date(cycle.startDate).getTime()) /
-                            (1000 * 60 * 60 * 24)
-                          ) + 1
-                          } 天`
-                          : ""}
-                      </span>
+                          })}
+                          {" - "}
+                          {cycle.endDate
+                            ? format(new Date(cycle.endDate), "yyyy-MM-dd", {
+                              locale: zhTW,
+                            })
+                            : "進行中"}
+                        </span>
+                        <span className="text-sm">
+                          {cycle.endDate
+                            ? `${Math.ceil(
+                              (new Date(cycle.endDate).getTime() -
+                                new Date(cycle.startDate).getTime()) /
+                              (1000 * 60 * 60 * 24)
+                            ) + 1
+                            } 天`
+                            : ""}
+                        </span>
+                      </div>
+                      {idx < arr.length - 1 && <Separator />}
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-          </div>
+                  ))}
+              </CardContent>
+            </ScrollArea>
+          </Card>
         </div>
       </div>
 
