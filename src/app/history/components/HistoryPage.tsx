@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { format, isSameMonth } from "date-fns";
+import { format, isSameMonth, startOfMonth } from "date-fns";
 import { zhTW } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface HistoryPageProps {
   cycles: PeriodCycle[];
+  editingCycle: PeriodCycle | null;
   editRange: DateRange;
   setEditRange: (range: DateRange) => void;
   showEditDialog: boolean;
@@ -31,6 +32,7 @@ interface HistoryPageProps {
 
 export function HistoryPage({
   cycles,
+  editingCycle,
   editRange,
   setEditRange,
   showEditDialog,
@@ -39,6 +41,7 @@ export function HistoryPage({
   onSaveEdit,
   onDeleteCycle,
 }: HistoryPageProps) {
+  const isAddMode = editingCycle === null;
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const periodDays = getAllPeriodDays(cycles);
 
@@ -76,14 +79,16 @@ export function HistoryPage({
             <Button
               variant="default"
               size="sm"
-              disabled={cyclesInCurrentMonth.length === 0}
               onClick={() => {
                 if (cyclesInCurrentMonth.length > 0) {
                   onEditCycle(cyclesInCurrentMonth[0]);
+                } else {
+                  setEditRange({ from: startOfMonth(currentMonth), to: null });
+                  setShowEditDialog(true);
                 }
               }}
             >
-              編輯紀錄
+              {cyclesInCurrentMonth.length === 0 ? "新增紀錄" : "編輯紀錄"}
             </Button>
           </CardFooter>
         </Card>
@@ -134,11 +139,11 @@ export function HistoryPage({
         </div>
       </div>
 
-      {/* Edit cycle dialog */}
+      {/* Edit/Add cycle dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-[350px]">
           <DialogHeader>
-            <DialogTitle>編輯經期紀錄</DialogTitle>
+            <DialogTitle>{isAddMode ? "新增經期紀錄" : "編輯經期紀錄"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             {/* Display selected range */}
@@ -174,13 +179,15 @@ export function HistoryPage({
                   儲存
                 </Button>
               </div>
-              <Button
-                variant="destructive"
-                onClick={onDeleteCycle}
-                className="w-full"
-              >
-                刪除此紀錄
-              </Button>
+              {!isAddMode && (
+                <Button
+                  variant="destructive"
+                  onClick={onDeleteCycle}
+                  className="w-full"
+                >
+                  刪除此紀錄
+                </Button>
+              )}
             </div>
           </DialogFooter>
         </DialogContent>

@@ -9,6 +9,8 @@ import {
   parsePeriodCycles,
   deletePeriodCycle,
   updatePeriodCycle,
+  addPeriodStart,
+  addPeriodEnd,
 } from "@/lib/period";
 import { usePeriods } from "@/hooks/usePeriods";
 import { HistoryPage } from "./components/HistoryPage";
@@ -37,14 +39,25 @@ export default function HistoryRoutePage() {
 
   // Handle save edit
   const handleSaveEdit = () => {
-    if (!editingCycle) return;
-    const newEvents = updatePeriodCycle(
-      events,
-      editingCycle.startDate,
-      editingCycle.endDate,
-      format(editRange.from, "yyyy-MM-dd"),
-      editRange.to ? format(editRange.to, "yyyy-MM-dd") : null
-    );
+    let newEvents;
+
+    if (editingCycle) {
+      // 編輯模式
+      newEvents = updatePeriodCycle(
+        events,
+        editingCycle.startDate,
+        editingCycle.endDate,
+        format(editRange.from, "yyyy-MM-dd"),
+        editRange.to ? format(editRange.to, "yyyy-MM-dd") : null
+      );
+    } else {
+      // 新增模式
+      newEvents = addPeriodStart(events, format(editRange.from, "yyyy-MM-dd"));
+      if (editRange.to) {
+        newEvents = addPeriodEnd(newEvents, format(editRange.to, "yyyy-MM-dd"));
+      }
+    }
+
     savePeriods(newEvents);
     setShowEditDialog(false);
     setEditingCycle(null);
@@ -76,6 +89,7 @@ export default function HistoryRoutePage() {
       <main className="flex-1 p-4 pb-20 overflow-y-auto">
         <HistoryPage
           cycles={cycles}
+          editingCycle={editingCycle}
           editRange={editRange}
           setEditRange={setEditRange}
           showEditDialog={showEditDialog}
