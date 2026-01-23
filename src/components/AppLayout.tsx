@@ -6,6 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { LogOut, Home, CalendarDays } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 const PUBLIC_PATHS = ["/login"];
 
@@ -27,7 +28,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-muted-foreground">載入中...</p>
+        <Spinner className="size-6" />
       </div>
     );
   }

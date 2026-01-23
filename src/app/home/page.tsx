@@ -13,6 +13,7 @@ import {
 } from "@/lib/period";
 import { usePeriods } from "@/hooks/usePeriods";
 import { HomePage } from "./components/HomePage";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function HomeRoutePage() {
   const { periods: events, loading, savePeriods } = usePeriods();
@@ -58,7 +59,7 @@ export default function HomeRoutePage() {
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center bg-background">
-        <p className="text-muted-foreground">載入中...</p>
+        <Spinner className="size-6" />
       </div>
     );
   }
