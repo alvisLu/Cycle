@@ -9,6 +9,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 
+/**
+ * Authentication page that provides email/password and Google sign-in and redirects authenticated users to /home.
+ *
+ * Renders a centered card with inputs for email and password, a toggle between sign-up and sign-in modes, a Google OAuth button, inline user-facing error messages (mapped from Firebase error codes), and loading indicators for initial auth state and form submissions.
+ *
+ * @returns The authentication page UI; renders nothing when a user session already exists.
+ */
 export default function LoginPage() {
   const { user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
   const router = useRouter();

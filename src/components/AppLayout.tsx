@@ -16,6 +16,14 @@ const navPaths = [
   { href: "/history", label: "歷史", icon: CalendarDays, paths: ["/history"] },
 ];
 
+/**
+ * Application layout that enforces authentication and provides the top header and bottom navigation.
+ *
+ * Shows a centered spinner while authentication is loading, redirects unauthenticated users away from protected routes to "/login", renders only the page content for public or unauthenticated pages, and renders the header, children, and bottom navigation for authenticated users.
+ *
+ * @param children - Page content to render inside the layout
+ * @returns The layout's React nodes for the current authentication and route state
+ */
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, signOut } = useAuth();
   const router = useRouter();

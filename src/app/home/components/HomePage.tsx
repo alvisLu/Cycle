@@ -41,6 +41,24 @@ interface HomePageProps {
   onEndPeriod: () => void;
 }
 
+/**
+ * Render the home page UI showing current/next period status and controls to start or end a period.
+ *
+ * Renders a status card with today’s date, average period/cycle lengths (when available), and either
+ * the current period view or the next expected period. Provides action buttons that open dialogs
+ * containing a Calendar for selecting a start or end date; dialogs confirm via the provided callbacks.
+ *
+ * @param cycles - Array of recorded period cycles used to compute status and predictions
+ * @param selectedDate - Currently selected date shown in the calendar dialogs
+ * @param setSelectedDate - Setter invoked when the user picks a date in a calendar
+ * @param showStartDialog - Whether the "start period" dialog is open
+ * @param setShowStartDialog - Setter to open/close the "start period" dialog
+ * @param showEndDialog - Whether the "end period" dialog is open
+ * @param setShowEndDialog - Setter to open/close the "end period" dialog
+ * @param onStartPeriod - Callback invoked when the user confirms starting a period
+ * @param onEndPeriod - Callback invoked when the user confirms ending a period
+ * @returns The rendered JSX element for the home page
+ */
 export function HomePage({
   cycles,
   selectedDate,
@@ -233,4 +251,3 @@ export function HomePage({
     </>
   );
 }
-
