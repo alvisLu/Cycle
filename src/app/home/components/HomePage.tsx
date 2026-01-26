@@ -20,7 +20,6 @@ import { ButtonGroup } from "@/components/ui/button-group";
 
 const styles = {
   pageWrapper: "space-y-4",
-  pageTitle: "text-xl font-semibold text-center mb-6",
   statusMainTitle: "text-3xl font-bold text-center py-4",
   statusDaysText: "text-6xl font-bold text-center",
   periodBlock: "space-y-2 py-4 flex flex-col items-center",
@@ -131,7 +130,6 @@ export function HomePage({
   return (
     <>
       <div className={styles.pageWrapper}>
-        <h1 className={styles.pageTitle}>經期追蹤</h1>
 
         {/* Status card */}
         <Card>
