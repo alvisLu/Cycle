@@ -10,13 +10,17 @@ import { Spinner } from "@/components/ui/spinner";
 
 const PUBLIC_PATHS = ["/login"];
 
+const navPaths = [
+  { href: "/", label: "主頁", icon: Home, paths: ["/", "/home"] },
+  { href: "/history", label: "歷史", icon: CalendarDays, paths: ["/history"] },
+];
+
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   const isPublicPath = PUBLIC_PATHS.includes(pathname);
-  const isHome = pathname === "/" || pathname === "/home";
 
   useEffect(() => {
     if (!loading && !user && !isPublicPath) {
@@ -72,28 +76,19 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Bottom Nav */}
       <nav className="fixed bottom-0 left-0 right-0 bg-background border-t">
         <div className="max-w-md mx-auto flex">
-          <Link
-            href="/"
-            className={`flex-1 py-3 flex flex-col items-center gap-1 transition-colors ${
-              isHome
+          {navPaths.map(({ href, label, icon: Icon, paths }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`flex-1 py-3 flex flex-col items-center gap-1 transition-colors ${paths.includes(pathname)
                 ? "text-foreground"
                 : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Home className="h-5 w-5" />
-            <span className="text-xs">主頁</span>
-          </Link>
-          <Link
-            href="/history"
-            className={`flex-1 py-3 flex flex-col items-center gap-1 transition-colors ${
-              !isHome
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <CalendarDays className="h-5 w-5" />
-            <span className="text-xs">歷史</span>
-          </Link>
+                }`}
+            >
+              <Icon className="h-5 w-5" />
+              <span className="text-xs">{label}</span>
+            </Link>
+          ))}
         </div>
       </nav>
     </>
