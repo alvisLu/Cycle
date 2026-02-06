@@ -68,10 +68,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-md mx-auto px-2 py-2">
-          {children}
-        </div>
+      <main className="flex-1 overflow-y-auto bg-background max-w-md mx-auto w-full p-4">
+        {children}
       </main>
 
       {/* Bottom Nav */}

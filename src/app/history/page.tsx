@@ -86,21 +86,17 @@ export default function HistoryRoutePage() {
   }
 
   return (
-    <div className="h-full bg-background flex flex-col max-w-md mx-auto">
-      <main className="flex-1 p-4 pb-20 overflow-y-auto">
-        <HistoryPage
-          cycles={cycles}
-          editingCycle={editingCycle}
-          editRange={editRange}
-          setEditRange={setEditRange}
-          showEditDialog={showEditDialog}
-          setShowEditDialog={setShowEditDialog}
-          onEditCycle={handleEditCycle}
-          onSaveEdit={handleSaveEdit}
-          onDeleteCycle={handleDeleteCycle}
-        />
-      </main>
-    </div>
+    <HistoryPage
+      cycles={cycles}
+      editingCycle={editingCycle}
+      editRange={editRange}
+      setEditRange={setEditRange}
+      showEditDialog={showEditDialog}
+      setShowEditDialog={setShowEditDialog}
+      onEditCycle={handleEditCycle}
+      onSaveEdit={handleSaveEdit}
+      onDeleteCycle={handleDeleteCycle}
+    />
   );
 }
 

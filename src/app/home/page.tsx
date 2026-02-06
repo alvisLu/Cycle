@@ -65,21 +65,17 @@ export default function HomeRoutePage() {
   }
 
   return (
-    <div className="h-full bg-background flex flex-col max-w-md mx-auto">
-      <main className="flex-1 p-4 pb-20 overflow-y-auto">
-        <HomePage
-          cycles={cycles}
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-          showStartDialog={showStartDialog}
-          setShowStartDialog={setShowStartDialog}
-          showEndDialog={showEndDialog}
-          setShowEndDialog={setShowEndDialog}
-          onStartPeriod={handleStartPeriod}
-          onEndPeriod={handleEndPeriod}
-        />
-      </main>
-    </div>
+    <HomePage
+      cycles={cycles}
+      selectedDate={selectedDate}
+      setSelectedDate={setSelectedDate}
+      showStartDialog={showStartDialog}
+      setShowStartDialog={setShowStartDialog}
+      showEndDialog={showEndDialog}
+      setShowEndDialog={setShowEndDialog}
+      onStartPeriod={handleStartPeriod}
+      onEndPeriod={handleEndPeriod}
+    />
   );
 }
 
