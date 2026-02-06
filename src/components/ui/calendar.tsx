@@ -80,6 +80,15 @@ function Calendar({
   for (let i = 0; i < days.length; i += 7) {
     weeks.push(days.slice(i, i + 7));
   }
+  // Always show 6 weeks for consistent calendar height
+  while (weeks.length < 6) {
+    const lastDay = weeks[weeks.length - 1][6];
+    const nextWeek: Date[] = [];
+    for (let i = 1; i <= 7; i++) {
+      nextWeek.push(addDays(lastDay, i));
+    }
+    weeks.push(nextWeek);
+  }
 
   const handlePrevMonth = () => {
     const newMonth = subMonths(currentMonth, 1);
@@ -163,6 +172,7 @@ function Calendar({
           </div>
         ))}
       </div>
+
       <div className="grid grid-cols-7 gap-1">
         {weeks.map((week, weekIdx) =>
           week.map((dayDate, dayIdx) => {
