@@ -49,9 +49,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <>
+    <div className="flex flex-col h-dvh">
       {/* Top Bar */}
-      <header className="sticky top-0 z-10 bg-background border-b">
+      <header className="shrink-0 z-10 bg-background border-b">
         <div className="max-w-md mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
@@ -68,10 +68,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {children}
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-md mx-auto px-2 py-2">
+          {children}
+        </div>
+      </main>
 
       {/* Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t">
+      <nav className="shrink-0 bg-background border-t">
         <div className="max-w-md mx-auto flex">
           {navPaths.map(({ href, label, icon: Icon, paths }) => (
             <Link
@@ -88,6 +92,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           ))}
         </div>
       </nav>
-    </>
+    </div>
   );
 }

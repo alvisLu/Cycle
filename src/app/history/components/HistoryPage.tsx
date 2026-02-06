@@ -16,7 +16,6 @@ import {
 import { Calendar, DateRange } from "@/components/ui/calendar";
 import { PeriodCycle, getAllPeriodDays } from "@/lib/period";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface HistoryPageProps {
   cycles: PeriodCycle[];
@@ -53,8 +52,7 @@ export function HistoryPage({
 
   return (
     <>
-      <div className="flex flex-col gap-4 h-full overflow-hidden">
-        <h1 className="text-xl font-semibold text-center">歷史紀錄</h1>
+      <div className="flex flex-col gap-4">
 
         <Card>
           <CardContent className="p-0">
@@ -94,49 +92,45 @@ export function HistoryPage({
         </Card>
 
         {/* Recent cycles list */}
-        <div className="flex flex-col flex-1 min-h-0">
-          <Card className="flex-1 min-h-0 overflow-hidden">
-            <CardHeader>
-              <CardTitle>最近紀錄</CardTitle>
-            </CardHeader>
-            <ScrollArea className="h-full">
-              <CardContent>
-                {cycles
-                  .slice()
-                  .reverse()
-                  .slice(0, 12)
-                  .map((cycle, idx, arr) => (
-                    <div key={idx}>
-                      <div className="flex justify-between items-center py-2 text-muted-foreground">
-                        <span>
-                          {format(new Date(cycle.startDate), "yyyy-MM-dd", {
-                            locale: zhTW,
-                          })}
-                          {" - "}
-                          {cycle.endDate
-                            ? format(new Date(cycle.endDate), "yyyy-MM-dd", {
-                              locale: zhTW,
-                            })
-                            : "進行中"}
-                        </span>
-                        <span className="text-sm">
-                          {cycle.endDate
-                            ? `${Math.ceil(
-                              (new Date(cycle.endDate).getTime() -
-                                new Date(cycle.startDate).getTime()) /
-                              (1000 * 60 * 60 * 24)
-                            ) + 1
-                            } 天`
-                            : ""}
-                        </span>
-                      </div>
-                      {idx < arr.length - 1 && <Separator />}
-                    </div>
-                  ))}
-              </CardContent>
-            </ScrollArea>
-          </Card>
-        </div>
+        <Card className="flex flex-col h-[400px]">
+          <CardHeader className="shrink-0">
+            <CardTitle>最近紀錄</CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-y-auto overscroll-contain touch-pan-y">
+            {cycles
+              .slice()
+              .reverse()
+              .slice(0, 12)
+              .map((cycle, idx, arr) => (
+                <div key={idx}>
+                  <div className="flex justify-between items-center py-2 text-muted-foreground">
+                    <span>
+                      {format(new Date(cycle.startDate), "yyyy-MM-dd", {
+                        locale: zhTW,
+                      })}
+                      {" - "}
+                      {cycle.endDate
+                        ? format(new Date(cycle.endDate), "yyyy-MM-dd", {
+                          locale: zhTW,
+                        })
+                        : "進行中"}
+                    </span>
+                    <span className="text-sm">
+                      {cycle.endDate
+                        ? `${Math.ceil(
+                          (new Date(cycle.endDate).getTime() -
+                            new Date(cycle.startDate).getTime()) /
+                          (1000 * 60 * 60 * 24)
+                        ) + 1
+                        } 天`
+                        : ""}
+                    </span>
+                  </div>
+                  {idx < arr.length - 1 && <Separator />}
+                </div>
+              ))}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Edit/Add cycle dialog */}
