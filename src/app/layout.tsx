@@ -3,7 +3,7 @@ import "./globals.css";
 import { AppLayout } from "@/components/AppLayout";
 
 export const metadata: Metadata = {
-  title: "經期追蹤",
+  title: "Cycle",
   description: "月經週期管理應用",
 };
 

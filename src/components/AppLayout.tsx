@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LogOut, Home, CalendarDays } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
@@ -53,20 +54,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-10 bg-background border-b">
         <div className="max-w-md mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {user.photoURL && (
-              <img
-                src={user.photoURL}
-                alt={user.displayName || "使用者"}
-                className="w-8 h-8 rounded-full"
-              />
-            )}
-            <span className="text-sm font-medium truncate max-w-[150px]">
-              {user.displayName || user.email}
-            </span>
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={user.photoURL || undefined} alt={user.displayName || "使用者"} />
+              <AvatarFallback className="text-xs">
+                {(user.displayName || user.email || "?").charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
           </div>
-          <Button variant="ghost" size="sm" onClick={signOut}>
-            <LogOut className="w-4 h-4 mr-1" />
-            登出
+          <h1 className="text-xl font-semibold text-center ">Cycle</h1>
+          <Button variant="secondary" size="icon" onClick={signOut}>
+            <LogOut className="size-4" />
           </Button>
         </div>
       </header>

@@ -80,9 +80,9 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">經期追蹤</CardTitle>
+          <CardTitle className="text-2xl">Cycle</CardTitle>
           <CardDescription>
-            {isSignUp ? "建立帳號以同步您的資料" : "登入以同步您的資料"}
+            月經週期管理工具
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -106,7 +106,7 @@ export default function LoginPage() {
             />
             {error && <p className="text-sm text-destructive">{error}</p>}
             <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? "處理中..." : isSignUp ? "註冊" : "登入"}
+              {submitting ? <Spinner className="size-4" /> : isSignUp ? "註冊" : "登入"}
             </Button>
           </form>
 
