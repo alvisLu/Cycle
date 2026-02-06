@@ -182,7 +182,6 @@ function Calendar({
             const inRange = isInRange(dayDate);
             const rangeStart = isRangeStart(dayDate);
             const rangeEnd = isRangeEnd(dayDate);
-
             return (
               <button
                 key={`${weekIdx}-${dayIdx}`}
@@ -192,14 +191,14 @@ function Calendar({
                   // Default rounded
                   "rounded-full",
                   !isCurrentMonth && "text-muted-foreground/50",
-                  isCurrentMonth && "hover:bg-accent",
+                  isCurrentMonth && "hover:bg-destructive hover:text-destructive-foreground",
                   // Single selection
-                  isSelected && "bg-primary text-primary-foreground hover:bg-primary",
-                  isPeriodDay && !isSelected && !inRange && !rangeStart && !rangeEnd && "bg-gray-300 text-gray-800",
+                  isSelected && "bg-primary text-primary-foreground hover:bg-primary ",
+                  isPeriodDay && !isSelected && !inRange && !rangeStart && !rangeEnd && "bg-border text-border-foreground",
                   // Range selection styling
                   inRange && !rangeStart && !rangeEnd && "bg-primary/20 rounded-none",
-                  rangeStart && "bg-primary text-primary-foreground rounded-l-full rounded-r-none",
-                  rangeEnd && "bg-primary text-primary-foreground rounded-r-full rounded-l-none",
+                  rangeStart && "bg-foreground text-background rounded-l-full rounded-r-none",
+                  rangeEnd && "bg-foreground text-background rounded-r-full rounded-l-none",
                   rangeStart && rangeEnd && "rounded-full",
                   // When only start is selected (no end yet)
                   rangeStart && !selectedRange?.to && "rounded-full"

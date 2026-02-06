@@ -1,21 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { format, isSameMonth, startOfMonth } from "date-fns";
+import { format, isSameMonth } from "date-fns";
 import { zhTW } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Calendar, DateRange } from "@/components/ui/calendar";
 import { PeriodCycle, getAllPeriodDays } from "@/lib/period";
 import { Separator } from "@/components/ui/separator";
+import { EditCycleDialog } from "./EditCycleDialog";
 
 interface HistoryPageProps {
   cycles: PeriodCycle[];
@@ -43,6 +37,7 @@ export function HistoryPage({
   const isAddMode = editingCycle === null;
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const periodDays = getAllPeriodDays(cycles);
+  const today = new Date();
 
   // 找出當前月份的 cycles
   const cyclesInCurrentMonth = cycles.filter((cycle) => {
@@ -59,6 +54,7 @@ export function HistoryPage({
             <Calendar
               modifiers={{ periodDays }}
               onMonthChange={setCurrentMonth}
+              selected={today}
               onSelect={(date) => {
                 const dateStr = format(date, "yyyy-MM-dd");
                 const cycle = cycles.find((c) => {
@@ -81,7 +77,7 @@ export function HistoryPage({
                 if (cyclesInCurrentMonth.length > 0) {
                   onEditCycle(cyclesInCurrentMonth[0]);
                 } else {
-                  setEditRange({ from: startOfMonth(currentMonth), to: null });
+                  setEditRange({ from: today, to: null });
                   setShowEditDialog(true);
                 }
               }}
@@ -133,59 +129,15 @@ export function HistoryPage({
         </Card>
       </div>
 
-      {/* Edit/Add cycle dialog */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-[350px]">
-          <DialogHeader>
-            <DialogTitle>{isAddMode ? "新增經期紀錄" : "編輯經期紀錄"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            {/* Display selected range */}
-            <div className="text-center text-sm text-muted-foreground">
-              <span className="text-foreground font-medium">
-                {format(editRange.from, "M月d日", { locale: zhTW })}
-              </span>
-              <span className="mx-2">-</span>
-              <span className="text-foreground font-medium">
-                {editRange.to
-                  ? format(editRange.to, "M月d日", { locale: zhTW })
-                  : "點選結束日期"}
-              </span>
-            </div>
-            {/* Range calendar */}
-            <Calendar
-              mode="range"
-              selectedRange={editRange}
-              onSelectRange={setEditRange}
-            />
-          </div>
-          <DialogFooter className="flex-col gap-2 sm:flex-col w-full">
-            <div className="w-full space-y-2">
-              <div className="flex gap-2 w-full">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowEditDialog(false)}
-                  className="flex-1"
-                >
-                  取消
-                </Button>
-                <Button onClick={onSaveEdit} className="flex-1">
-                  儲存
-                </Button>
-              </div>
-              {!isAddMode && (
-                <Button
-                  variant="destructive"
-                  onClick={onDeleteCycle}
-                  className="w-full"
-                >
-                  刪除此紀錄
-                </Button>
-              )}
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <EditCycleDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        isAddMode={isAddMode}
+        editRange={editRange}
+        onEditRangeChange={setEditRange}
+        onSave={onSaveEdit}
+        onDelete={onDeleteCycle}
+      />
     </>
   );
 }
