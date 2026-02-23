@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { format, isSameMonth } from "date-fns";
-import { zhTW } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +9,7 @@ import { Calendar, DateRange } from "@/components/ui/calendar";
 import { PeriodCycle, getAllPeriodDays } from "@/lib/period";
 import { Separator } from "@/components/ui/separator";
 import { EditCycleDialog } from "./EditCycleDialog";
+import { CycleListItem } from "./CycleListItem";
 
 interface HistoryPageProps {
   cycles: PeriodCycle[];
@@ -53,6 +53,7 @@ export function HistoryPage({
             <Calendar
               modifiers={{ periodDays }}
               onMonthChange={setCurrentMonth}
+              month={currentMonth}
               selected={today}
               onSelect={(date) => {
                 const dateStr = format(date, "yyyy-MM-dd");
@@ -97,33 +98,12 @@ export function HistoryPage({
               .reverse()
               .slice(0, 12)
               .map((cycle, idx, arr) => (
-                <div key={idx}>
-                  <div className="flex justify-between items-center py-2 text-muted-foreground">
-                    <span>
-                      {format(new Date(cycle.startDate), "yyyy-MM-dd", {
-                        locale: zhTW,
-                      })}
-                      {" - "}
-                      {cycle.endDate
-                        ? format(new Date(cycle.endDate), "yyyy-MM-dd", {
-                            locale: zhTW,
-                          })
-                        : "進行中"}
-                    </span>
-                    <span className="text-sm">
-                      {cycle.endDate
-                        ? `${
-                            Math.ceil(
-                              (new Date(cycle.endDate).getTime() -
-                                new Date(cycle.startDate).getTime()) /
-                                (1000 * 60 * 60 * 24)
-                            ) + 1
-                          } 天`
-                        : ""}
-                    </span>
-                  </div>
-                  {idx < arr.length - 1 && <Separator />}
-                </div>
+                <CycleListItem
+                  key={idx}
+                  cycle={cycle}
+                  showSeparator={idx < arr.length - 1}
+                  onClick={() => setCurrentMonth(new Date(cycle.startDate))}
+                />
               ))}
           </CardContent>
         </Card>

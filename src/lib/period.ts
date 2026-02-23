@@ -23,7 +23,7 @@ export interface PeriodEvent {
 
 export interface PeriodCycle {
   startDate: string;
-  endDate: string | null;
+  endDate: string;
 }
 
 // Parse period events into cycles
@@ -43,11 +43,21 @@ export function parsePeriodCycles(events: PeriodEvent[]): PeriodCycle[] {
     }
   }
 
-  // Handle ongoing period (started but not ended)
   if (currentStart) {
+    // 用已完成週期推算平均經期天數，預設 5 天
+    const DEFAULT_PERIOD_LENGTH = 5;
+    const avgPeriodLength =
+      cycles.length > 0
+        ? Math.round(
+          cycles.reduce((sum, c) => {
+            return sum + differenceInDays(parseLocalDate(c.endDate), parseLocalDate(c.startDate)) + 1;
+          }, 0) / cycles.length
+        )
+        : DEFAULT_PERIOD_LENGTH;
+
     cycles.push({
       startDate: currentStart,
-      endDate: null,
+      endDate: format(addDays(parseLocalDate(currentStart), avgPeriodLength - 1), "yyyy-MM-dd"),
     });
   }
 
