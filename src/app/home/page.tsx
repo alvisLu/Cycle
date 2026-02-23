@@ -25,8 +25,8 @@ export default function HomeRoutePage() {
     let newEvents = addPeriodStart(events, dateStr);
 
     // 依平均經期天數，自動帶入預設結束日
-    if (status.averagePeriodLength && status.averagePeriodLength > 0) {
-      const defaultEndDate = addDays(selectedDate, status.averagePeriodLength - 1);
+    if (status.averagePeriodDays && status.averagePeriodDays > 0) {
+      const defaultEndDate = addDays(selectedDate, status.averagePeriodDays - 1);
       const defaultEndStr = format(defaultEndDate, "yyyy-MM-dd");
       newEvents = addPeriodEnd(newEvents, defaultEndStr);
     }
