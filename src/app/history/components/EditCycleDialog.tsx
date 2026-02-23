@@ -52,7 +52,6 @@ export function EditCycleDialog({
           {/* Range calendar */}
           <Calendar
             mode="range"
-            selected={new Date()}
             selectedRange={editRange}
             onSelectRange={onEditRangeChange}
           />
