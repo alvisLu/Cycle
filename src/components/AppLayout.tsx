@@ -79,10 +79,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <Link
               key={href}
               href={href}
-              className={`flex-1 py-3 flex flex-col items-center gap-1 transition-colors ${paths.includes(pathname)
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-                }`}
+              className={`flex-1 py-3 flex flex-col items-center gap-1 transition-colors ${
+                paths.includes(pathname)
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
               <Icon className="h-5 w-5" />
               <span className="text-xs">{label}</span>

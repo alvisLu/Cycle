@@ -46,9 +46,7 @@ export function EditCycleDialog({
             </span>
             <span className="mx-2">-</span>
             <span className="text-foreground font-medium">
-              {editRange.to
-                ? format(editRange.to, "M月d日", { locale: zhTW })
-                : "點選結束日期"}
+              {editRange.to ? format(editRange.to, "M月d日", { locale: zhTW }) : "點選結束日期"}
             </span>
           </div>
           {/* Range calendar */}
@@ -62,11 +60,7 @@ export function EditCycleDialog({
         <DialogFooter className="flex-col gap-2 sm:flex-col w-full">
           <div className="w-full space-y-2">
             <div className="flex gap-2 w-full">
-              <Button
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                className="flex-1"
-              >
+              <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
                 取消
               </Button>
               <Button onClick={onSave} className="flex-1">
@@ -74,11 +68,7 @@ export function EditCycleDialog({
               </Button>
             </div>
             {!isAddMode && (
-              <Button
-                variant="destructive"
-                onClick={onDelete}
-                className="w-full"
-              >
+              <Button variant="destructive" onClick={onDelete} className="w-full">
                 刪除此紀錄
               </Button>
             )}

@@ -81,9 +81,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Cycle</CardTitle>
-          <CardDescription>
-            月經週期管理工具
-          </CardDescription>
+          <CardDescription>月經週期管理工具</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={handleEmailSubmit} className="space-y-3">

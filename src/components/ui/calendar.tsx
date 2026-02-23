@@ -145,23 +145,13 @@ function Calendar({
   return (
     <div className={cn("p-3", className)}>
       <div className="flex items-center justify-between mb-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handlePrevMonth}
-          className="h-8 w-8"
-        >
+        <Button variant="outline" size="icon" onClick={handlePrevMonth} className="h-8 w-8">
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <h2 className="text-sm font-semibold">
           {format(currentMonth, "yyyy年 M月", { locale: zhTW })}
         </h2>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handleNextMonth}
-          className="h-8 w-8"
-        >
+        <Button variant="outline" size="icon" onClick={handleNextMonth} className="h-8 w-8">
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
@@ -194,7 +184,12 @@ function Calendar({
                   isCurrentMonth && "hover:bg-destructive hover:text-destructive-foreground",
                   // Single selection
                   isSelected && "bg-primary text-primary-foreground hover:bg-primary ",
-                  isPeriodDay && !isSelected && !inRange && !rangeStart && !rangeEnd && "bg-border text-border-foreground",
+                  isPeriodDay &&
+                    !isSelected &&
+                    !inRange &&
+                    !rangeStart &&
+                    !rangeEnd &&
+                    "bg-border text-border-foreground",
                   // Range selection styling
                   inRange && !rangeStart && !rangeEnd && "bg-primary/20 rounded-none",
                   rangeStart && "bg-foreground text-background rounded-l-full rounded-r-none",

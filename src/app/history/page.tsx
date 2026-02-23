@@ -67,11 +67,7 @@ export default function HistoryRoutePage() {
   // Handle delete cycle
   const handleDeleteCycle = () => {
     if (!editingCycle) return;
-    const newEvents = deletePeriodCycle(
-      events,
-      editingCycle.startDate,
-      editingCycle.endDate
-    );
+    const newEvents = deletePeriodCycle(events, editingCycle.startDate, editingCycle.endDate);
     savePeriods(newEvents);
     setShowEditDialog(false);
     setEditingCycle(null);
@@ -99,4 +95,3 @@ export default function HistoryRoutePage() {
     />
   );
 }
-

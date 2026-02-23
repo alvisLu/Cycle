@@ -48,7 +48,6 @@ export function HistoryPage({
   return (
     <>
       <div className="flex flex-col gap-4">
-
         <Card>
           <CardContent className="p-0">
             <Calendar
@@ -107,18 +106,19 @@ export function HistoryPage({
                       {" - "}
                       {cycle.endDate
                         ? format(new Date(cycle.endDate), "yyyy-MM-dd", {
-                          locale: zhTW,
-                        })
+                            locale: zhTW,
+                          })
                         : "進行中"}
                     </span>
                     <span className="text-sm">
                       {cycle.endDate
-                        ? `${Math.ceil(
-                          (new Date(cycle.endDate).getTime() -
-                            new Date(cycle.startDate).getTime()) /
-                          (1000 * 60 * 60 * 24)
-                        ) + 1
-                        } 天`
+                        ? `${
+                            Math.ceil(
+                              (new Date(cycle.endDate).getTime() -
+                                new Date(cycle.startDate).getTime()) /
+                                (1000 * 60 * 60 * 24)
+                            ) + 1
+                          } 天`
                         : ""}
                     </span>
                   </div>
@@ -141,4 +141,3 @@ export function HistoryPage({
     </>
   );
 }
-
