@@ -44,13 +44,10 @@ export default function HistoryRoutePage() {
 
     if (editingCycle) {
       // 編輯模式
-      newEvents = updatePeriodCycle(
-        events,
-        editingCycle.startDate,
-        editingCycle.endDate,
-        format(editRange.from, "yyyy-MM-dd"),
-        editRange.to ? format(editRange.to, "yyyy-MM-dd") : null
-      );
+      newEvents = updatePeriodCycle(events, editingCycle.startDate, {
+        startDate: format(editRange.from, "yyyy-MM-dd"),
+        endDate: editRange.to ? format(editRange.to, "yyyy-MM-dd") : null,
+      });
     } else {
       // 新增模式
       newEvents = addPeriodStart(events, format(editRange.from, "yyyy-MM-dd"));
