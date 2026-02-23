@@ -61,13 +61,19 @@ export default function HistoryRoutePage() {
     setEditingCycle(null);
   };
 
-  // Handle delete cycle
+  // Handle delete cycle (from edit dialog)
   const handleDeleteCycle = () => {
     if (!editingCycle) return;
     const newEvents = deletePeriodCycle(events, editingCycle.startDate, editingCycle.endDate);
     savePeriods(newEvents);
     setShowEditDialog(false);
     setEditingCycle(null);
+  };
+
+  // Handle delete cycle directly (from list item)
+  const handleDeleteSpecificCycle = (cycle: PeriodCycle) => {
+    const newEvents = deletePeriodCycle(events, cycle.startDate, cycle.endDate);
+    savePeriods(newEvents);
   };
 
   if (loading) {
@@ -89,6 +95,7 @@ export default function HistoryRoutePage() {
       onEditCycle={handleEditCycle}
       onSaveEdit={handleSaveEdit}
       onDeleteCycle={handleDeleteCycle}
+      onDeleteSpecificCycle={handleDeleteSpecificCycle}
     />
   );
 }

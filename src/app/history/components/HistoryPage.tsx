@@ -21,6 +21,7 @@ interface HistoryPageProps {
   onEditCycle: (cycle: PeriodCycle) => void;
   onSaveEdit: () => void;
   onDeleteCycle: () => void;
+  onDeleteSpecificCycle: (cycle: PeriodCycle) => void;
 }
 
 export function HistoryPage({
@@ -33,6 +34,7 @@ export function HistoryPage({
   onEditCycle,
   onSaveEdit,
   onDeleteCycle,
+  onDeleteSpecificCycle,
 }: HistoryPageProps) {
   const isAddMode = editingCycle === null;
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -103,6 +105,8 @@ export function HistoryPage({
                   cycle={cycle}
                   showSeparator={idx < arr.length - 1}
                   onClick={() => setCurrentMonth(new Date(cycle.startDate))}
+                  onEdit={() => onEditCycle(cycle)}
+                  onDelete={() => onDeleteSpecificCycle(cycle)}
                 />
               ))}
           </CardContent>
@@ -116,7 +120,6 @@ export function HistoryPage({
         editRange={editRange}
         onEditRangeChange={setEditRange}
         onSave={onSaveEdit}
-        onDelete={onDeleteCycle}
       />
     </>
   );

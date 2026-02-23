@@ -20,7 +20,6 @@ interface EditCycleDialogProps {
   editRange: DateRange;
   onEditRangeChange: (range: DateRange) => void;
   onSave: () => void;
-  onDelete: () => void;
 }
 
 export function EditCycleDialog({
@@ -30,7 +29,6 @@ export function EditCycleDialog({
   editRange,
   onEditRangeChange,
   onSave,
-  onDelete,
 }: EditCycleDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -66,11 +64,6 @@ export function EditCycleDialog({
                 儲存
               </Button>
             </div>
-            {!isAddMode && (
-              <Button variant="destructive" onClick={onDelete} className="w-full">
-                刪除此紀錄
-              </Button>
-            )}
           </div>
         </DialogFooter>
       </DialogContent>
