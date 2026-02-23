@@ -40,7 +40,7 @@ export function EditCycleDialog({
           {/* Display selected range */}
           <div className="text-center text-sm text-muted-foreground">
             <span className="text-foreground font-medium">
-              {format(editRange.from, "M月d日", { locale: zhTW })}
+              {editRange.from ? format(editRange.from, "M月d日", { locale: zhTW }) : "點選開始日期"}
             </span>
             <span className="mx-2">-</span>
             <span className="text-foreground font-medium">
@@ -48,11 +48,7 @@ export function EditCycleDialog({
             </span>
           </div>
           {/* Range calendar */}
-          <Calendar
-            mode="range"
-            selectedRange={editRange}
-            onSelectRange={onEditRangeChange}
-          />
+          <Calendar mode="range" selectedRange={editRange} onSelectRange={onEditRangeChange} />
         </div>
         <DialogFooter className="flex-col gap-2 sm:flex-col w-full">
           <div className="w-full space-y-2">

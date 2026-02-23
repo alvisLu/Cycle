@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 export interface DateRange {
-  from: Date;
+  from: Date | null;
   to: Date | null;
 }
 

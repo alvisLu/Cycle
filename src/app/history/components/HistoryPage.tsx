@@ -41,12 +41,6 @@ export function HistoryPage({
   const periodDays = getAllPeriodDays(cycles);
   const today = new Date();
 
-  // 找出當前月份的 cycles
-  const cyclesInCurrentMonth = cycles.filter((cycle) => {
-    const startDate = new Date(cycle.startDate);
-    return isSameMonth(startDate, currentMonth);
-  });
-
   return (
     <>
       <div className="flex flex-col gap-4">
@@ -70,29 +64,22 @@ export function HistoryPage({
               }}
             />
           </CardContent>
-          <Separator />
-          <CardFooter className="justify-end p-2">
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => {
-                if (cyclesInCurrentMonth.length > 0) {
-                  onEditCycle(cyclesInCurrentMonth[0]);
-                } else {
-                  setEditRange({ from: today, to: null });
-                  setShowEditDialog(true);
-                }
-              }}
-            >
-              {cyclesInCurrentMonth.length === 0 ? "新增紀錄" : "編輯紀錄"}
-            </Button>
-          </CardFooter>
         </Card>
 
         {/* Recent cycles list */}
         <Card className="flex flex-col h-[400px]">
-          <CardHeader className="shrink-0">
+          <CardHeader className="shrink-0 flex-row justify-between items-center">
             <CardTitle>最近紀錄</CardTitle>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                setEditRange({ from: null, to: null });
+                setShowEditDialog(true);
+              }}
+            >
+              新增紀錄
+            </Button>
           </CardHeader>
           <CardContent className="flex-1 overflow-y-auto overscroll-contain touch-pan-y">
             {cycles

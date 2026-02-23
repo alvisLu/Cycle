@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 
 type CompletedCycle = PeriodCycle & { endDate: string };
 
@@ -24,7 +25,13 @@ interface CycleListItemProps {
   onDelete: () => void;
 }
 
-export function CycleListItem({ cycle, showSeparator, onClick, onEdit, onDelete }: CycleListItemProps) {
+export function CycleListItem({
+  cycle,
+  showSeparator,
+  onClick,
+  onEdit,
+  onDelete,
+}: CycleListItemProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const startDateString = format(new Date(cycle.startDate), "yyyy-MM-dd", { locale: zhTW });
   const endDateString = format(new Date(cycle.endDate), "yyyy-MM-dd", { locale: zhTW });
@@ -36,33 +43,30 @@ export function CycleListItem({ cycle, showSeparator, onClick, onEdit, onDelete 
 
   return (
     <div>
-      <div className="flex items-center">
-        <div
+      <div className="flex justify-between items-center">
+        <button
           className="flex justify-between items-center py-2 flex-1 text-muted-foreground hover:text-foreground transition-colors"
           onClick={onClick}
         >
-          <div
-            className="flex flex-row gap-2"
-          >
-            <h6>{startDateString}</h6> ~
-            <h6>{endDateString}</h6>
-          </div>
-          <h6>{`${days} 天`}</h6>
+          <p className="text-sm leading-none font-medium">
+            {startDateString} ~ {endDateString}
+          </p>
+          <Badge variant="ghost">{`${days} 天`}</Badge>
+        </button>
+
+        <div className="flex">
+          <Button variant="ghost" size="sm" onClick={onEdit}>
+            <PencilIcon />
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setConfirmOpen(true)}>
+            <Trash2 />
+          </Button>
         </div>
-
-
-        <Button variant="ghost" size="sm" onClick={onEdit}>
-          <PencilIcon size={16} />
-        </Button>
-
-        <Button variant="ghost" size="sm" onClick={() => setConfirmOpen(true)}>
-          <Trash2 size={16} />
-        </Button>
       </div>
       {showSeparator && <Separator />}
 
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <DialogContent >
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>確認刪除</DialogTitle>
           </DialogHeader>
@@ -70,8 +74,19 @@ export function CycleListItem({ cycle, showSeparator, onClick, onEdit, onDelete 
             確定要刪除 {startDateString} ~ {endDateString} 的紀錄嗎？
           </p>
           <DialogFooter className="flex-row gap-2 sm:flex-row">
-            <Button className="w-full" variant="outline" onClick={() => setConfirmOpen(false)}>取消</Button>
-            <Button className="w-full" variant="destructive" onClick={() => { setConfirmOpen(false); onDelete(); }}>刪除</Button>
+            <Button className="w-full" variant="outline" onClick={() => setConfirmOpen(false)}>
+              取消
+            </Button>
+            <Button
+              className="w-full"
+              variant="destructive"
+              onClick={() => {
+                setConfirmOpen(false);
+                onDelete();
+              }}
+            >
+              刪除
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
