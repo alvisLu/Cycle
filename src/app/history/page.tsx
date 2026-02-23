@@ -67,11 +67,7 @@ export default function HistoryRoutePage() {
   // Handle delete cycle
   const handleDeleteCycle = () => {
     if (!editingCycle) return;
-    const newEvents = deletePeriodCycle(
-      events,
-      editingCycle.startDate,
-      editingCycle.endDate
-    );
+    const newEvents = deletePeriodCycle(events, editingCycle.startDate, editingCycle.endDate);
     savePeriods(newEvents);
     setShowEditDialog(false);
     setEditingCycle(null);
@@ -86,21 +82,16 @@ export default function HistoryRoutePage() {
   }
 
   return (
-    <div className="h-full bg-background flex flex-col max-w-md mx-auto">
-      <main className="flex-1 p-4 pb-20 overflow-y-auto">
-        <HistoryPage
-          cycles={cycles}
-          editingCycle={editingCycle}
-          editRange={editRange}
-          setEditRange={setEditRange}
-          showEditDialog={showEditDialog}
-          setShowEditDialog={setShowEditDialog}
-          onEditCycle={handleEditCycle}
-          onSaveEdit={handleSaveEdit}
-          onDeleteCycle={handleDeleteCycle}
-        />
-      </main>
-    </div>
+    <HistoryPage
+      cycles={cycles}
+      editingCycle={editingCycle}
+      editRange={editRange}
+      setEditRange={setEditRange}
+      showEditDialog={showEditDialog}
+      setShowEditDialog={setShowEditDialog}
+      onEditCycle={handleEditCycle}
+      onSaveEdit={handleSaveEdit}
+      onDeleteCycle={handleDeleteCycle}
+    />
   );
 }
-

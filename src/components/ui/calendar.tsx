@@ -80,6 +80,15 @@ function Calendar({
   for (let i = 0; i < days.length; i += 7) {
     weeks.push(days.slice(i, i + 7));
   }
+  // Always show 6 weeks for consistent calendar height
+  while (weeks.length < 6) {
+    const lastDay = weeks[weeks.length - 1][6];
+    const nextWeek: Date[] = [];
+    for (let i = 1; i <= 7; i++) {
+      nextWeek.push(addDays(lastDay, i));
+    }
+    weeks.push(nextWeek);
+  }
 
   const handlePrevMonth = () => {
     const newMonth = subMonths(currentMonth, 1);
@@ -136,23 +145,13 @@ function Calendar({
   return (
     <div className={cn("p-3", className)}>
       <div className="flex items-center justify-between mb-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handlePrevMonth}
-          className="h-8 w-8"
-        >
+        <Button variant="outline" size="icon" onClick={handlePrevMonth} className="h-8 w-8">
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <h2 className="text-sm font-semibold">
           {format(currentMonth, "yyyy年 M月", { locale: zhTW })}
         </h2>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handleNextMonth}
-          className="h-8 w-8"
-        >
+        <Button variant="outline" size="icon" onClick={handleNextMonth} className="h-8 w-8">
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
@@ -163,6 +162,7 @@ function Calendar({
           </div>
         ))}
       </div>
+
       <div className="grid grid-cols-7 gap-1">
         {weeks.map((week, weekIdx) =>
           week.map((dayDate, dayIdx) => {
@@ -172,7 +172,6 @@ function Calendar({
             const inRange = isInRange(dayDate);
             const rangeStart = isRangeStart(dayDate);
             const rangeEnd = isRangeEnd(dayDate);
-
             return (
               <button
                 key={`${weekIdx}-${dayIdx}`}
@@ -182,14 +181,19 @@ function Calendar({
                   // Default rounded
                   "rounded-full",
                   !isCurrentMonth && "text-muted-foreground/50",
-                  isCurrentMonth && "hover:bg-accent",
+                  isCurrentMonth && "hover:bg-destructive hover:text-destructive-foreground",
                   // Single selection
-                  isSelected && "bg-primary text-primary-foreground hover:bg-primary",
-                  isPeriodDay && !isSelected && !inRange && !rangeStart && !rangeEnd && "bg-gray-300 text-gray-800",
+                  isSelected && "bg-primary text-primary-foreground hover:bg-primary ",
+                  isPeriodDay &&
+                  !isSelected &&
+                  !inRange &&
+                  !rangeStart &&
+                  !rangeEnd &&
+                  "bg-border text-foreground",
                   // Range selection styling
                   inRange && !rangeStart && !rangeEnd && "bg-primary/20 rounded-none",
-                  rangeStart && "bg-primary text-primary-foreground rounded-l-full rounded-r-none",
-                  rangeEnd && "bg-primary text-primary-foreground rounded-r-full rounded-l-none",
+                  rangeStart && "bg-foreground text-background rounded-l-full rounded-r-none",
+                  rangeEnd && "bg-foreground text-background rounded-r-full rounded-l-none",
                   rangeStart && rangeEnd && "rounded-full",
                   // When only start is selected (no end yet)
                   rangeStart && !selectedRange?.to && "rounded-full"

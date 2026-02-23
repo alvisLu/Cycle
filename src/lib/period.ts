@@ -65,10 +65,7 @@ export interface PeriodStatus {
   averagePeriodLength: number | null;
 }
 
-export function getPeriodStatus(
-  cycles: PeriodCycle[],
-  today: Date = new Date()
-): PeriodStatus {
+export function getPeriodStatus(cycles: PeriodCycle[], today: Date = new Date()): PeriodStatus {
   // 統一使用當天午夜時間，避免時區問題
   const normalizedToday = startOfDay(today);
   const todayStr = format(normalizedToday, "yyyy-MM-dd");
@@ -90,10 +87,7 @@ export function getPeriodStatus(
       }
     } else {
       // Ongoing period
-      if (
-        format(startDate, "yyyy-MM-dd") === todayStr ||
-        isBefore(startDate, normalizedToday)
-      ) {
+      if (format(startDate, "yyyy-MM-dd") === todayStr || isBefore(startDate, normalizedToday)) {
         currentCycle = cycle;
         break;
       }
@@ -114,9 +108,7 @@ export function getPeriodStatus(
       const currStart = parseLocalDate(completedCycles[i].startDate);
       cycleLengths.push(differenceInDays(currStart, prevStart));
     }
-    averageCycleLength = Math.round(
-      cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length
-    );
+    averageCycleLength = Math.round(cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length);
   }
 
   // Calculate average period length（平均經期天數：每次開始到結束的天數）
@@ -188,9 +180,7 @@ export function getAllPeriodDays(cycles: PeriodCycle[]): Date[] {
 
   for (const cycle of cycles) {
     const startDate = parseLocalDate(cycle.startDate);
-    const endDate = cycle.endDate
-      ? parseLocalDate(cycle.endDate)
-      : addDays(startDate, 6); // Default to 7 days if ongoing
+    const endDate = cycle.endDate ? parseLocalDate(cycle.endDate) : addDays(startDate, 6); // Default to 7 days if ongoing
 
     let current = startDate;
     while (current <= endDate) {
@@ -203,25 +193,15 @@ export function getAllPeriodDays(cycles: PeriodCycle[]): Date[] {
 }
 
 // Add a new period start
-export function addPeriodStart(
-  events: PeriodEvent[],
-  date: string
-): PeriodEvent[] {
+export function addPeriodStart(events: PeriodEvent[], date: string): PeriodEvent[] {
   const newEvents = [...events, { date, event: "Starts" as const }];
-  return newEvents.sort(
-    (a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime()
-  );
+  return newEvents.sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime());
 }
 
 // Add a period end
-export function addPeriodEnd(
-  events: PeriodEvent[],
-  date: string
-): PeriodEvent[] {
+export function addPeriodEnd(events: PeriodEvent[], date: string): PeriodEvent[] {
   const newEvents = [...events, { date, event: "Ends" as const }];
-  return newEvents.sort(
-    (a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime()
-  );
+  return newEvents.sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime());
 }
 
 // Delete a period cycle

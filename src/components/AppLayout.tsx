@@ -49,9 +49,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <>
+    <div className="flex flex-col h-dvh">
       {/* Top Bar */}
-      <header className="sticky top-0 z-10 bg-background border-b">
+      <header className="shrink-0 z-10 bg-background border-b">
         <div className="max-w-md mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
@@ -68,19 +68,22 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {children}
+      <main className="flex-1 overflow-y-auto bg-background max-w-md mx-auto w-full p-4">
+        {children}
+      </main>
 
       {/* Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t">
+      <nav className="shrink-0 bg-background border-t">
         <div className="max-w-md mx-auto flex">
           {navPaths.map(({ href, label, icon: Icon, paths }) => (
             <Link
               key={href}
               href={href}
-              className={`flex-1 py-3 flex flex-col items-center gap-1 transition-colors ${paths.includes(pathname)
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-                }`}
+              className={`flex-1 py-3 flex flex-col items-center gap-1 transition-colors ${
+                paths.includes(pathname)
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
               <Icon className="h-5 w-5" />
               <span className="text-xs">{label}</span>
@@ -88,6 +91,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           ))}
         </div>
       </nav>
-    </>
+    </div>
   );
 }
