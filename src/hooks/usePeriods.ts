@@ -32,10 +32,7 @@ export function usePeriods() {
       }
 
       const userRef = doc(db, "users", currentUser.uid);
-      const q = query(
-        collection(db, "periods"),
-        where("user", "==", userRef)
-      );
+      const q = query(collection(db, "periods"), where("user", "==", userRef));
 
       const unsubscribeDoc = onSnapshot(
         q,
@@ -69,9 +66,7 @@ export function usePeriods() {
 
       await Promise.all(snapshot.docs.map((d) => deleteDoc(d.ref)));
       await Promise.all(
-        newPeriods.map((period) =>
-          addDoc(periodsRef, { ...period, user: userRef })
-        )
+        newPeriods.map((period) => addDoc(periodsRef, { ...period, user: userRef }))
       );
     } catch (err) {
       console.error("儲存經期資料失敗:", err);

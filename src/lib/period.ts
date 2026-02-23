@@ -106,9 +106,7 @@ export function getPeriodStatus(cycles: PeriodCycle[], today: Date = new Date())
       // +1 代表首尾都算在內
       return differenceInDays(e, s) + 1;
     });
-    averagePeriodDays = Math.round(
-      periodLengths.reduce((a, b) => a + b, 0) / periodLengths.length
-    );
+    averagePeriodDays = Math.round(periodLengths.reduce((a, b) => a + b, 0) / periodLengths.length);
   }
 
   // Calculate days until end (if on period)
@@ -185,9 +183,7 @@ export function addPeriodEnd(events: PeriodEvent[], date: string): PeriodEvent[]
   const sorted = [...events].sort((a, b) => b.startDate.localeCompare(a.startDate));
   const target = sorted.find((e) => !e.endDate && e.startDate <= date);
   if (!target) return events;
-  return events.map((e) =>
-    e.startDate === target.startDate ? { ...e, endDate: date } : e
-  );
+  return events.map((e) => (e.startDate === target.startDate ? { ...e, endDate: date } : e));
 }
 
 // Delete a period cycle

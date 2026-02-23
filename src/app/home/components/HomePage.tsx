@@ -60,9 +60,9 @@ export function HomePage({
   const nextExpectedStart =
     !status.isOnPeriod && completedCycles.length > 0
       ? addDays(
-        parseISO(completedCycles[completedCycles.length - 1].startDate),
-        status.averageCycleDays
-      )
+          parseISO(completedCycles[completedCycles.length - 1].startDate),
+          status.averageCycleDays
+        )
       : null;
 
   const daysUntilNextFromToday = nextExpectedStart
