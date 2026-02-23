@@ -185,11 +185,11 @@ function Calendar({
                   // Single selection
                   isSelected && "bg-primary text-primary-foreground hover:bg-primary ",
                   isPeriodDay &&
-                    !isSelected &&
-                    !inRange &&
-                    !rangeStart &&
-                    !rangeEnd &&
-                    "bg-border text-border-foreground",
+                  !isSelected &&
+                  !inRange &&
+                  !rangeStart &&
+                  !rangeEnd &&
+                  "bg-border text-foreground",
                   // Range selection styling
                   inRange && !rangeStart && !rangeEnd && "bg-primary/20 rounded-none",
                   rangeStart && "bg-foreground text-background rounded-l-full rounded-r-none",
