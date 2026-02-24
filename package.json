@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css}\""
+    "fmt": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
+    "fmt:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css}\""
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",

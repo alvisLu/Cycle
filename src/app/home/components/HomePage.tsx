@@ -61,7 +61,7 @@ export function HomePage({
     !status.isOnPeriod && completedCycles.length > 0
       ? addDays(
           parseISO(completedCycles[completedCycles.length - 1].startDate),
-          status.averageCycleLength
+          status.averageCycleDays
         )
       : null;
 
@@ -71,8 +71,8 @@ export function HomePage({
 
   // 預估本次經期的連續日期（用於「經期開始」對話框中的日曆高亮）
   const predictedPeriodDays =
-    status.averagePeriodLength && status.averagePeriodLength > 0
-      ? Array.from({ length: status.averagePeriodLength }, (_, i) => addDays(selectedDate, i))
+    status.averagePeriodDays && status.averagePeriodDays > 0
+      ? Array.from({ length: status.averagePeriodDays }, (_, i) => addDays(selectedDate, i))
       : [];
 
   // 目前這次經期開始日（用於「經期結束」對話框的 range 顯示）
@@ -134,13 +134,13 @@ export function HomePage({
             <CardTitle className="text-base">
               <div className="text-s font-bold flex justify-between items-center">
                 <div>{format(today, "yyyy-MM-dd EEEE", { locale: zhTW })}</div>
-                {status.averagePeriodLength !== null && (
+                {status.averagePeriodDays !== null && (
                   <ButtonGroup>
                     <Button variant="outline" size="sm">
-                      經期: {status.averagePeriodLength} 天
+                      經期: {status.averagePeriodDays} 天
                     </Button>
                     <Button variant="outline" size="sm">
-                      週期: {status.averageCycleLength} 天
+                      週期: {status.averageCycleDays} 天
                     </Button>
                   </ButtonGroup>
                 )}

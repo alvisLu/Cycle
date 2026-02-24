@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 export interface DateRange {
-  from: Date;
+  from: Date | null;
   to: Date | null;
 }
 
@@ -40,6 +40,8 @@ export interface CalendarProps {
   onSelectRange?: (range: DateRange) => void;
   // Month change callback
   onMonthChange?: (month: Date) => void;
+  // Controlled month
+  month?: Date;
 }
 
 function Calendar({
@@ -51,10 +53,15 @@ function Calendar({
   selectedRange,
   onSelectRange,
   onMonthChange,
+  month,
 }: CalendarProps) {
   const [currentMonth, setCurrentMonth] = React.useState(
-    selectedRange?.from ?? selected ?? new Date()
+    month ?? selectedRange?.from ?? selected ?? new Date()
   );
+
+  React.useEffect(() => {
+    if (month) setCurrentMonth(month);
+  }, [month]);
 
   const periodDaysSet = React.useMemo(() => {
     const set = new Set<string>();

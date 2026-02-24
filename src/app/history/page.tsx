@@ -9,8 +9,8 @@ import {
   parsePeriodCycles,
   deletePeriodCycle,
   updatePeriodCycle,
-  addPeriodStart,
-  addPeriodEnd,
+  addPeriod,
+  updatePeriodEnd,
 } from "@/lib/period";
 import { usePeriods } from "@/hooks/usePeriods";
 import { HistoryPage } from "./components/HistoryPage";
@@ -44,18 +44,17 @@ export default function HistoryRoutePage() {
 
     if (editingCycle) {
       // 編輯模式
-      newEvents = updatePeriodCycle(
-        events,
-        editingCycle.startDate,
-        editingCycle.endDate,
-        format(editRange.from, "yyyy-MM-dd"),
-        editRange.to ? format(editRange.to, "yyyy-MM-dd") : null
-      );
+      newEvents = updatePeriodCycle(events, editingCycle.startDate, {
+        startDate: editRange.from ? format(editRange.from, "yyyy-MM-dd") : editingCycle.startDate,
+        endDate: editRange.to ? format(editRange.to, "yyyy-MM-dd") : null,
+      });
     } else {
       // 新增模式
-      newEvents = addPeriodStart(events, format(editRange.from, "yyyy-MM-dd"));
+      if (!editRange.from) return;
+      console.log(events);
+      newEvents = addPeriod(events, format(editRange.from, "yyyy-MM-dd"));
       if (editRange.to) {
-        newEvents = addPeriodEnd(newEvents, format(editRange.to, "yyyy-MM-dd"));
+        newEvents = updatePeriodEnd(newEvents, format(editRange.to, "yyyy-MM-dd"));
       }
     }
 
@@ -64,13 +63,19 @@ export default function HistoryRoutePage() {
     setEditingCycle(null);
   };
 
-  // Handle delete cycle
+  // Handle delete cycle (from edit dialog)
   const handleDeleteCycle = () => {
     if (!editingCycle) return;
     const newEvents = deletePeriodCycle(events, editingCycle.startDate, editingCycle.endDate);
     savePeriods(newEvents);
     setShowEditDialog(false);
     setEditingCycle(null);
+  };
+
+  // Handle delete cycle directly (from list item)
+  const handleDeleteSpecificCycle = (cycle: PeriodCycle) => {
+    const newEvents = deletePeriodCycle(events, cycle.startDate, cycle.endDate);
+    savePeriods(newEvents);
   };
 
   if (loading) {
@@ -92,6 +97,7 @@ export default function HistoryRoutePage() {
       onEditCycle={handleEditCycle}
       onSaveEdit={handleSaveEdit}
       onDeleteCycle={handleDeleteCycle}
+      onDeleteSpecificCycle={handleDeleteSpecificCycle}
     />
   );
 }

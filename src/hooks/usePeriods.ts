@@ -1,7 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  writeBatch,
+} from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { db, auth } from "@/lib/firebase";
 import type { PeriodEvent } from "@/lib/period";
@@ -22,18 +32,18 @@ export function usePeriods() {
         return;
       }
 
-      // Subscribe to user's periods document
-      const userDocRef = doc(db, "users", currentUser.uid);
+      const userRef = doc(db, "users", currentUser.uid);
+      const q = query(collection(db, "periods"), where("user", "==", userRef));
 
       const unsubscribeDoc = onSnapshot(
-        userDocRef,
+        q,
         (snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.data();
-            setPeriods(data.periods || []);
-          } else {
-            setPeriods([]);
-          }
+          setPeriods(
+            snapshot.docs.map((d) => {
+              const { user, ...periodData } = d.data();
+              return periodData as PeriodEvent;
+            })
+          );
           setLoading(false);
         },
         (err) => {
@@ -55,8 +65,17 @@ export function usePeriods() {
     }
 
     try {
-      const userDocRef = doc(db, "users", user.uid);
-      await setDoc(userDocRef, { periods: newPeriods }, { merge: true });
+      const userRef = doc(db, "users", user.uid);
+      const periodsRef = collection(db, "periods");
+      const q = query(periodsRef, where("user", "==", userRef));
+      const snapshot = await getDocs(q);
+      const batch = writeBatch(db);
+      snapshot.docs.forEach((d) => batch.delete(d.ref));
+      newPeriods.forEach((period) => {
+        const newDocRef = doc(periodsRef);
+        batch.set(newDocRef, { ...period, user: userRef });
+      });
+      await batch.commit();
     } catch (err) {
       console.error("儲存經期資料失敗:", err);
       throw err;
