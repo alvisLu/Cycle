@@ -9,8 +9,8 @@ import {
   parsePeriodCycles,
   deletePeriodCycle,
   updatePeriodCycle,
-  addPeriodStart,
-  addPeriodEnd,
+  addPeriod,
+  updatePeriodEnd,
 } from "@/lib/period";
 import { usePeriods } from "@/hooks/usePeriods";
 import { HistoryPage } from "./components/HistoryPage";
@@ -51,9 +51,10 @@ export default function HistoryRoutePage() {
     } else {
       // 新增模式
       if (!editRange.from) return;
-      newEvents = addPeriodStart(events, format(editRange.from, "yyyy-MM-dd"));
+      console.log(events);
+      newEvents = addPeriod(events, format(editRange.from, "yyyy-MM-dd"));
       if (editRange.to) {
-        newEvents = addPeriodEnd(newEvents, format(editRange.to, "yyyy-MM-dd"));
+        newEvents = updatePeriodEnd(newEvents, format(editRange.to, "yyyy-MM-dd"));
       }
     }
 

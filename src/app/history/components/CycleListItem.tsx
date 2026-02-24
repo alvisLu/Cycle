@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { format } from "date-fns";
+import { differenceInDays, format, parse } from "date-fns";
 import { zhTW } from "date-fns/locale";
 import { PencilIcon, Trash2 } from "lucide-react";
 
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -33,13 +34,11 @@ export function CycleListItem({
   onDelete,
 }: CycleListItemProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const startDateString = format(new Date(cycle.startDate), "yyyy-MM-dd", { locale: zhTW });
-  const endDateString = format(new Date(cycle.endDate), "yyyy-MM-dd", { locale: zhTW });
-  const days =
-    Math.ceil(
-      (new Date(cycle.endDate).getTime() - new Date(cycle.startDate).getTime()) /
-      (1000 * 60 * 60 * 24)
-    ) + 1;
+  const startLocal = parse(cycle.startDate, "yyyy-MM-dd", new Date());
+  const endLocal = parse(cycle.endDate, "yyyy-MM-dd", new Date());
+  const startDateString = format(startLocal, "yyyy-MM-dd", { locale: zhTW });
+  const endDateString = format(endLocal, "yyyy-MM-dd", { locale: zhTW });
+  const days = differenceInDays(endLocal, startLocal) + 1;
 
   return (
     <div>
@@ -70,9 +69,9 @@ export function CycleListItem({
           <DialogHeader>
             <DialogTitle>確認刪除</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">
+          <DialogDescription className="text-sm text-muted-foreground">
             確定要刪除 {startDateString} ~ {endDateString} 的紀錄嗎？
-          </p>
+          </DialogDescription>
           <DialogFooter className="flex-row gap-2 sm:flex-row">
             <Button className="w-full" variant="outline" onClick={() => setConfirmOpen(false)}>
               取消

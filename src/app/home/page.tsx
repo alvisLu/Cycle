@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { addDays, format } from "date-fns";
 
-import { parsePeriodCycles, addPeriodStart, addPeriodEnd, getPeriodStatus } from "@/lib/period";
+import { parsePeriodCycles, addPeriod, updatePeriodEnd, getPeriodStatus } from "@/lib/period";
 import { usePeriods } from "@/hooks/usePeriods";
 import { HomePage } from "./components/HomePage";
 import { Spinner } from "@/components/ui/spinner";
@@ -22,13 +22,13 @@ export default function HomeRoutePage() {
   // Handle start period
   const handleStartPeriod = () => {
     const dateStr = format(selectedDate, "yyyy-MM-dd");
-    let newEvents = addPeriodStart(events, dateStr);
+    let newEvents = addPeriod(events, dateStr);
 
     // 依平均經期天數，自動帶入預設結束日
     if (status.averagePeriodDays && status.averagePeriodDays > 0) {
-      const defaultEndDate = addDays(selectedDate, status.averagePeriodDays - 1);
+      const defaultEndDate = addDays(selectedDate, status.averagePeriodDays);
       const defaultEndStr = format(defaultEndDate, "yyyy-MM-dd");
-      newEvents = addPeriodEnd(newEvents, defaultEndStr);
+      newEvents = updatePeriodEnd(newEvents, defaultEndStr);
     }
 
     savePeriods(newEvents);
@@ -39,7 +39,7 @@ export default function HomeRoutePage() {
   // Handle end period
   const handleEndPeriod = () => {
     const dateStr = format(selectedDate, "yyyy-MM-dd");
-    const newEvents = addPeriodEnd(events, dateStr);
+    const newEvents = updatePeriodEnd(events, dateStr);
     savePeriods(newEvents);
     setShowEndDialog(false);
     setSelectedDate(new Date());

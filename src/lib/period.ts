@@ -121,7 +121,7 @@ export function getPeriodStatus(cycles: PeriodCycle[], today: Date = new Date())
       daysUntilEnd = differenceInDays(parseLocalDate(currentCycle.endDate), normalizedToday);
     } else if (averagePeriodDays !== null) {
       // 尚未設定結束日：用「平均經期天數」推估預期結束日
-      const expectedEnd = addDays(start, averagePeriodDays - 1);
+      const expectedEnd = addDays(start, averagePeriodDays);
       daysUntilEnd = differenceInDays(expectedEnd, normalizedToday);
     }
   }
@@ -170,16 +170,16 @@ export function getAllPeriodDays(cycles: PeriodCycle[]): Date[] {
   return days;
 }
 
-// Add a new period start
-export function addPeriodStart(events: PeriodEvent[], date: string): PeriodEvent[] {
-  const endDate = format(addDays(parseLocalDate(date), AVERAGE_PERIOD_DAYS), "yyyy-MM-dd");
+// Add a new period
+export function addPeriod(events: PeriodEvent[], date: string): PeriodEvent[] {
+  const endDate = format(addDays(parseLocalDate(date), AVERAGE_PERIOD_DAYS - 1), "yyyy-MM-dd");
   return [...events, { startDate: date, endDate, note: "" }].sort((a, b) =>
     a.startDate.localeCompare(b.startDate)
   );
 }
 
-// Add a period end (updates the most recent ongoing period)
-export function addPeriodEnd(events: PeriodEvent[], date: string): PeriodEvent[] {
+// Update a period end (updates the most recent ongoing period)
+export function updatePeriodEnd(events: PeriodEvent[], date: string): PeriodEvent[] {
   const sorted = [...events].sort((a, b) => b.startDate.localeCompare(a.startDate));
   const target = sorted.find((e) => !e.endDate && e.startDate <= date);
   if (!target) return events;

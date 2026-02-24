@@ -10,6 +10,7 @@ import {
   getDocs,
   deleteDoc,
   doc,
+  writeBatch,
 } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { db, auth } from "@/lib/firebase";
@@ -37,7 +38,12 @@ export function usePeriods() {
       const unsubscribeDoc = onSnapshot(
         q,
         (snapshot) => {
-          setPeriods(snapshot.docs.map((d) => d.data() as PeriodEvent));
+          setPeriods(
+            snapshot.docs.map((d) => {
+              const { user, ...periodData } = d.data();
+              return periodData as PeriodEvent;
+            })
+          );
           setLoading(false);
         },
         (err) => {
@@ -63,11 +69,13 @@ export function usePeriods() {
       const periodsRef = collection(db, "periods");
       const q = query(periodsRef, where("user", "==", userRef));
       const snapshot = await getDocs(q);
-
-      await Promise.all(snapshot.docs.map((d) => deleteDoc(d.ref)));
-      await Promise.all(
-        newPeriods.map((period) => addDoc(periodsRef, { ...period, user: userRef }))
-      );
+      const batch = writeBatch(db);
+      snapshot.docs.forEach((d) => batch.delete(d.ref));
+      newPeriods.forEach((period) => {
+        const newDocRef = doc(periodsRef);
+        batch.set(newDocRef, { ...period, user: userRef });
+      });
+      await batch.commit();
     } catch (err) {
       console.error("儲存經期資料失敗:", err);
       throw err;
